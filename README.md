@@ -10,15 +10,15 @@ assets are not available in this repository. The local fixture in
 to the local sample uploaded document at
 `/local-sample-uploaded-document.pdf`.
 
-| Field         | Type                                              | Example                                        | Source                       | Fallback assumption                                                           |
-| ------------- | ------------------------------------------------- | ---------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------- |
-| `name`        | `string`                                          | `123-maple-appraisal.pdf`                      | Challenge field description  | Uploaded document display name.                                               |
-| `uploaded_at` | ISO timestamp string                              | `2026-05-07T14:18:00.000Z`                     | Challenge field description  | Timestamp for the latest uploaded version only.                               |
-| `status`      | `created \| processing \| on_review \| submitted` | `on_review`                                    | Challenge workflow states    | The review page uses `on_review` for the default fixture.                     |
-| `version`     | `number`                                          | `2`                                            | Challenge versioning rule    | New uploads increment this number; historical versions are not returned.      |
-| `user`        | object                                            | `{ id, name, email }`                          | Challenge field description  | Represents the reviewer or assigned user shown in the header.                 |
-| `issues`      | array                                             | `[{ id, severity, page, title, description }]` | Challenge issue requirements | `critical`, `major`, and `minor` severities are enough for MVP behavior.      |
-| `document`    | object                                            | `{ url, pages }`                               | Challenge PDF requirement    | `url` points to a local searchable PDF; `pages` provides basic page metadata. |
+| Field         | Type                                              | Example                                        | Source                       | Fallback assumption                                                                                                       |
+| ------------- | ------------------------------------------------- | ---------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | `string`                                          | `123-maple-appraisal.pdf`                      | Challenge field description  | Uploaded document display name.                                                                                           |
+| `uploaded_at` | ISO timestamp string                              | `2026-05-07T14:18:00.000Z`                     | Challenge field description  | Timestamp for the latest uploaded version only.                                                                           |
+| `status`      | `created \| processing \| on_review \| submitted` | `on_review`                                    | Challenge workflow states    | The review page uses `on_review` for the default fixture.                                                                 |
+| `version`     | `number`                                          | `2`                                            | Challenge versioning rule    | New uploads increment this number; historical versions are not returned.                                                  |
+| `user`        | object                                            | `{ id, name, email }`                          | Challenge field description  | Represents the reviewer or assigned user shown in the header.                                                             |
+| `issues`      | array                                             | `[{ id, severity, page, title, description }]` | Challenge issue requirements | `critical`, `major`, and `minor` severities are enough for MVP behavior.                                                  |
+| `document`    | object                                            | `{ url, pages }`                               | Challenge PDF requirement    | `url` points to a local searchable PDF, or `null` when the document is unavailable; `pages` provides basic page metadata. |
 
 Important fallback notes:
 
@@ -29,5 +29,7 @@ Important fallback notes:
   such as `HomeVision`, `critical issue`, and `flood certification`.
 - `src/data/reviewMock.ts` also includes small review variants for future tests:
   blocked, minor-only, no-issues, non-reviewable statuses, and missing-document.
+- `src/data/reviewClient.ts` exposes the Promise-backed `loadReview()` boundary the
+  Review Page will use for loading and error states.
 - The app must not add fake issue resolution. Critical and major issues are
   fixed outside the app and require a new upload.
