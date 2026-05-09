@@ -1,0 +1,80 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 7 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 8 0 R >>
+endobj
+6 0 obj
+<< /Length 314 >>
+stream
+BT
+/F1 12 Tf
+72 720 Td
+(HomeVision Fallback Review Document) Tj
+0 -24 Td
+(Subject property: 123 Maple Street, Springfield, CA 90210.) Tj
+0 -24 Td
+(Reviewer packet generated for a current on_review document version.) Tj
+0 -24 Td
+(This PDF is intentionally text-based so native browser search can find terms.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Length 260 >>
+stream
+BT
+/F1 12 Tf
+72 720 Td
+(Critical issue reference: borrower income analysis is incomplete.) Tj
+0 -24 Td
+(The review cannot be submitted while this critical issue remains.) Tj
+0 -24 Td
+(The source document must be corrected externally and uploaded again.) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 283 >>
+stream
+BT
+/F1 12 Tf
+72 720 Td
+(Major issue reference: flood certification is missing from the packet.) Tj
+0 -24 Td
+(Minor issue reference: capitalization is inconsistent in one heading.) Tj
+0 -24 Td
+(Search terms for QA: HomeVision, critical issue, flood certification, minor issue.) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000253 00000 n 
+0000000379 00000 n 
+0000000505 00000 n 
+0000000869 00000 n 
+0000001179 00000 n 
+0000001512 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+1582
+%%EOF
