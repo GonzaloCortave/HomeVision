@@ -3,11 +3,14 @@ import { describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('App', () => {
-  it('renders the placeholder scaffold', () => {
+  it('renders the default review page', () => {
     render(<App />)
 
     expect(
-      screen.getByRole('heading', { name: /review page scaffold/i }),
+      screen.getByRole('heading', {
+        level: 1,
+        name: /123-maple-appraisal-review\.pdf/i,
+      }),
     ).toBeInTheDocument()
   })
 })
