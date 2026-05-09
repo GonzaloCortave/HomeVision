@@ -1,0 +1,64 @@
+export type DocumentViewerProps = {
+  documentUrl: string | null
+  missingDocumentDescription?: string
+  missingDocumentTitle?: string
+  title?: string
+}
+
+const DEFAULT_MISSING_DOCUMENT_DESCRIPTION =
+  'This document cannot be previewed because its URL is missing.'
+const DEFAULT_MISSING_DOCUMENT_TITLE = 'Document unavailable'
+const DEFAULT_TITLE = 'Document preview'
+
+const DocumentViewer = ({
+  documentUrl,
+  missingDocumentDescription = DEFAULT_MISSING_DOCUMENT_DESCRIPTION,
+  missingDocumentTitle = DEFAULT_MISSING_DOCUMENT_TITLE,
+  title = DEFAULT_TITLE,
+}: DocumentViewerProps) => {
+  const normalizedUrl = documentUrl?.trim()
+
+  if (!normalizedUrl) {
+    return (
+      <section
+        aria-label={title}
+        className="flex min-h-96 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center"
+      >
+        <div className="max-w-sm">
+          <h2 className="text-base font-semibold text-slate-950">
+            {missingDocumentTitle}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {missingDocumentDescription}
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section
+      aria-label={title}
+      className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+    >
+      <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3">
+        <h2 className="text-sm font-semibold text-slate-950">{title}</h2>
+        <a
+          className="text-sm font-medium text-sky-700 underline-offset-4 hover:text-sky-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+          href={normalizedUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
+          Open document in new tab
+        </a>
+      </div>
+      <iframe
+        className="h-[min(72vh,52rem)] w-full bg-slate-100"
+        src={normalizedUrl}
+        title={title}
+      />
+    </section>
+  )
+}
+
+export default DocumentViewer
