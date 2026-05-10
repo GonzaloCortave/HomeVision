@@ -40,6 +40,23 @@ describe('DocumentViewer', () => {
     expect(screen.getByTitle('Inspection report preview')).toBeInTheDocument()
   })
 
+  it('can render its title as a lower-level heading inside a parent section', () => {
+    render(
+      <DocumentViewer
+        documentUrl="/inspection.pdf"
+        title="Inspection report preview"
+        titleHeadingLevel="h3"
+      />,
+    )
+
+    expect(
+      screen.getByRole('heading', {
+        level: 3,
+        name: /inspection report preview/i,
+      }),
+    ).toBeInTheDocument()
+  })
+
   it('renders a useful missing-document state when the URL is null', () => {
     render(<DocumentViewer documentUrl={null} />)
 

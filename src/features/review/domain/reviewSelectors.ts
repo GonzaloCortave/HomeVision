@@ -35,30 +35,30 @@ export interface IssuesBySeverity {
 
 export type SubmissionState =
   | {
-      readonly kind: 'not_reviewable'
+      readonly state: 'not_reviewable'
       readonly canSubmit: false
-      readonly status: Exclude<ReviewStatus, 'on_review'>
+      readonly reviewStatus: Exclude<ReviewStatus, 'on_review'>
       readonly blockingIssues: readonly ReviewIssue[]
       readonly issueCounts: IssueCounts
     }
   | {
-      readonly kind: 'blocked'
+      readonly state: 'blocked'
       readonly canSubmit: false
-      readonly status: 'on_review'
+      readonly reviewStatus: 'on_review'
       readonly blockingIssues: readonly ReviewIssue[]
       readonly issueCounts: IssueCounts
     }
   | {
-      readonly kind: 'missing_document'
+      readonly state: 'missing_document'
       readonly canSubmit: false
-      readonly status: 'on_review'
+      readonly reviewStatus: 'on_review'
       readonly blockingIssues: readonly ReviewIssue[]
       readonly issueCounts: IssueCounts
     }
   | {
-      readonly kind: 'ready'
+      readonly state: 'ready'
       readonly canSubmit: true
-      readonly status: 'on_review'
+      readonly reviewStatus: 'on_review'
       readonly hasMinorIssues: boolean
       readonly issueCounts: IssueCounts
     }
@@ -146,9 +146,9 @@ export function getSubmissionState(review: Review): SubmissionState {
 
   if (review.status !== 'on_review') {
     return {
-      kind: 'not_reviewable',
+      state: 'not_reviewable',
       canSubmit: false,
-      status: review.status,
+      reviewStatus: review.status,
       blockingIssues,
       issueCounts,
     }
@@ -156,9 +156,9 @@ export function getSubmissionState(review: Review): SubmissionState {
 
   if (blockingIssues.length > 0) {
     return {
-      kind: 'blocked',
+      state: 'blocked',
       canSubmit: false,
-      status: review.status,
+      reviewStatus: review.status,
       blockingIssues,
       issueCounts,
     }
@@ -166,18 +166,18 @@ export function getSubmissionState(review: Review): SubmissionState {
 
   if (!hasReviewDocument(review)) {
     return {
-      kind: 'missing_document',
+      state: 'missing_document',
       canSubmit: false,
-      status: review.status,
+      reviewStatus: review.status,
       blockingIssues,
       issueCounts,
     }
   }
 
   return {
-    kind: 'ready',
+    state: 'ready',
     canSubmit: true,
-    status: review.status,
+    reviewStatus: review.status,
     hasMinorIssues: issueCounts.minor > 0,
     issueCounts,
   }

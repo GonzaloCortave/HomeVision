@@ -241,22 +241,22 @@ describe('review selectors', () => {
     expect(
       getSubmissionState(createReview({ issues: [createIssue('critical')] })),
     ).toMatchObject({
-      kind: 'blocked',
+      state: 'blocked',
       canSubmit: false,
-      status: 'on_review',
+      reviewStatus: 'on_review',
     })
     expect(
       getSubmissionState(createReview({ issues: [createIssue('minor')] })),
     ).toMatchObject({
-      kind: 'ready',
+      state: 'ready',
       canSubmit: true,
-      status: 'on_review',
+      reviewStatus: 'on_review',
       hasMinorIssues: true,
     })
     expect(getSubmissionState(createReview())).toMatchObject({
-      kind: 'ready',
+      state: 'ready',
       canSubmit: true,
-      status: 'on_review',
+      reviewStatus: 'on_review',
       hasMinorIssues: false,
     })
     expect(
@@ -269,9 +269,9 @@ describe('review selectors', () => {
         }),
       ),
     ).toMatchObject({
-      kind: 'missing_document',
+      state: 'missing_document',
       canSubmit: false,
-      status: 'on_review',
+      reviewStatus: 'on_review',
     })
   })
 
@@ -280,9 +280,9 @@ describe('review selectors', () => {
 
     for (const status of statuses) {
       expect(getSubmissionState(createReview({ status }))).toMatchObject({
-        kind: 'not_reviewable',
+        state: 'not_reviewable',
         canSubmit: false,
-        status,
+        reviewStatus: status,
       })
     }
   })
