@@ -3,6 +3,7 @@ export type DocumentViewerProps = {
   missingDocumentDescription?: string
   missingDocumentTitle?: string
   title?: string
+  titleHeadingLevel?: 'h2' | 'h3'
 }
 
 const DEFAULT_MISSING_DOCUMENT_DESCRIPTION =
@@ -15,8 +16,10 @@ const DocumentViewer = ({
   missingDocumentDescription = DEFAULT_MISSING_DOCUMENT_DESCRIPTION,
   missingDocumentTitle = DEFAULT_MISSING_DOCUMENT_TITLE,
   title = DEFAULT_TITLE,
+  titleHeadingLevel = 'h2',
 }: DocumentViewerProps) => {
   const normalizedUrl = documentUrl?.trim()
+  const TitleHeading = titleHeadingLevel
 
   if (!normalizedUrl) {
     return (
@@ -25,9 +28,9 @@ const DocumentViewer = ({
         className="flex min-h-96 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center"
       >
         <div className="max-w-sm">
-          <h2 className="text-base font-semibold text-slate-950">
+          <TitleHeading className="text-base font-semibold text-slate-950">
             {missingDocumentTitle}
-          </h2>
+          </TitleHeading>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             {missingDocumentDescription}
           </p>
@@ -42,7 +45,9 @@ const DocumentViewer = ({
       className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
     >
       <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3">
-        <h2 className="text-sm font-semibold text-slate-950">{title}</h2>
+        <TitleHeading className="text-sm font-semibold text-slate-950">
+          {title}
+        </TitleHeading>
         <a
           className="text-sm font-medium text-sky-700 underline-offset-4 hover:text-sky-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
           href={normalizedUrl}

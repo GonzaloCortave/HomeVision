@@ -1,29 +1,44 @@
 import type { Review } from '../domain/reviewTypes'
+import { formatReviewStatus, formatUploadedAt } from '../utils/reviewFormatters'
+import ReviewMetadataCard from './ReviewMetadataCard'
 
 export type ReviewHeaderProps = {
   review: Review
 }
 
 const ReviewHeader = ({ review }: ReviewHeaderProps) => {
+  const formattedUploadedAt = formatUploadedAt(review.uploaded_at)
+
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
-      <div>
+    <header className="flex flex-col gap-5 border-b border-slate-200 pb-5">
+      <div className="max-w-3xl">
         <p className="text-sm font-semibold uppercase text-sky-700">
-          HomeVision
+          HomeVision review
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-950">
           {review.name}
         </h1>
       </div>
-      <dl className="flex flex-wrap gap-3 text-sm text-slate-600">
-        <div>
-          <dt className="sr-only">Version</dt>
-          <dd>Version {review.version}</dd>
-        </div>
-        <div>
-          <dt className="sr-only">Status</dt>
-          <dd>{review.status.replace('_', ' ')}</dd>
-        </div>
+      <dl className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
+        <ReviewMetadataCard
+          label="Status"
+          value={formatReviewStatus(review.status)}
+        />
+        <ReviewMetadataCard
+          label="Version"
+          value={`Version ${review.version}`}
+        />
+        <ReviewMetadataCard
+          label="Uploaded"
+          value={
+            <time dateTime={review.uploaded_at}>{formattedUploadedAt}</time>
+          }
+        />
+        <ReviewMetadataCard
+          label="Reviewer"
+          secondaryValue={review.user.email}
+          value={review.user.name}
+        />
       </dl>
     </header>
   )
