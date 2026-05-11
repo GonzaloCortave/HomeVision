@@ -1,31 +1,39 @@
 import type { ButtonHTMLAttributes } from 'react'
+import {
+  getButtonClassName,
+  getTextButtonClassName,
+  type ButtonStyleSize,
+  type ButtonStyleVariant,
+} from './buttonStyles'
 
-export type ButtonVariant = 'primary' | 'secondary'
+export type ButtonVariant = ButtonStyleVariant | 'text'
+export type ButtonSize = ButtonStyleSize
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant
+type BaseButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
+
+type StandardButtonProps = BaseButtonProps & {
+  size?: ButtonSize
+  variant?: ButtonStyleVariant
 }
 
-const buttonVariantClassNames: Record<ButtonVariant, string> = {
-  primary:
-    'bg-slate-950 text-white hover:bg-slate-800 focus-visible:outline-sky-600',
-  secondary:
-    'border border-slate-300 bg-white text-slate-800 shadow-sm hover:border-sky-300 hover:text-sky-800 focus-visible:outline-sky-600',
+type TextButtonProps = BaseButtonProps & {
+  size?: never
+  variant: Extract<ButtonVariant, 'text'>
 }
+
+export type ButtonProps = StandardButtonProps | TextButtonProps
 
 const Button = ({
   className,
+  size = 'md',
   type = 'button',
   variant = 'primary',
   ...buttonProps
 }: ButtonProps) => {
-  const classNames = [
-    'rounded-lg px-4 py-2 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-    buttonVariantClassNames[variant],
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const classNames =
+    variant === 'text'
+      ? getTextButtonClassName(className)
+      : getButtonClassName({ className, size, variant })
 
   return <button className={classNames} type={type} {...buttonProps} />
 }

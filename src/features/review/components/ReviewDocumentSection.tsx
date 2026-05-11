@@ -13,7 +13,7 @@ const ReviewDocumentSection = ({
   return (
     <section
       aria-labelledby="document-heading"
-      className="min-w-0 lg:col-start-1 lg:row-start-1"
+      className="min-w-0"
       id={REVIEW_SECTION_IDS.document}
     >
       <div className="mb-3">

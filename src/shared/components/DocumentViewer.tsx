@@ -1,3 +1,5 @@
+import TextLink from './ui/TextLink'
+
 export type DocumentViewerProps = {
   documentUrl: string | null
   missingDocumentDescription?: string
@@ -48,14 +50,14 @@ const DocumentViewer = ({
         <TitleHeading className="text-sm font-semibold text-slate-950">
           {title}
         </TitleHeading>
-        <a
-          className="text-sm font-medium text-sky-700 underline-offset-4 hover:text-sky-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+        <TextLink
+          className="text-sm"
           href={normalizedUrl}
           rel="noreferrer"
           target="_blank"
         >
           Open document in new tab
-        </a>
+        </TextLink>
       </div>
       <iframe
         className="h-[min(72vh,52rem)] w-full bg-slate-100"

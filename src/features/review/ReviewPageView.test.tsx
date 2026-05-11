@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createReviewMock } from './data/reviewMock'
 import {
@@ -13,7 +19,7 @@ afterEach(() => {
 })
 
 describe('ReviewPageView', () => {
-  it('renders review metadata, the issue panel, and the uploaded document viewer', () => {
+  it('renders review metadata, compact right rail, document viewer, and grouped issues', () => {
     const review = createReviewMock()
 
     const { container } = renderReviewPageView(review)
@@ -36,10 +42,58 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { level: 2, name: /issues/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/3 current issues on the latest uploaded document/i),
+      screen.getByText(/7 current issues grouped by severity/i),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 3, name: /flood certification/i }),
+      screen.getByRole('heading', { level: 2, name: /review status/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /view all 7 issues/i }),
+    ).toHaveAttribute('href', '#issues-panel')
+    expect(
+      screen.getByRole('heading', { level: 3, name: /^critical$/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: /^major$/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: /^minor$/i }),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: /critical issues/i })).getByRole(
+        'heading',
+        { name: /borrower income analysis/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: /critical issues/i })).getByRole(
+        'heading',
+        { name: /collateral address does not match/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: /major issues/i })).getByRole(
+        'heading',
+        { name: /flood certification/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: /major issues/i })).getByRole(
+        'heading',
+        { name: /reviewer signature date is missing/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: /minor issues/i })).getByRole(
+        'heading',
+        { name: /heading capitalization/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: /minor issues/i })).getByRole(
+        'heading',
+        { name: /supporting note wraps awkwardly/i },
+      ),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { level: 2, name: /document/i }),
@@ -50,13 +104,43 @@ describe('ReviewPageView', () => {
     expect(
       screen.getByRole('link', { name: /open document in new tab/i }),
     ).toHaveAttribute('href', '/local-sample-uploaded-document.pdf')
+    const documentPanel = container.querySelector(
+      '#document-panel',
+    ) as HTMLElement
+    const reviewRail = screen.getByRole('complementary', {
+      name: /review status/i,
+    })
+    const issuesPanel = container.querySelector('#issues-panel') as HTMLElement
+
+    expect(documentPanel.compareDocumentPosition(reviewRail)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(reviewRail.compareDocumentPosition(issuesPanel)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+  })
+
+  it('keeps issue cards out of the compact review rail', () => {
+    const review = createReviewMock()
+
+    renderReviewPageView(review)
+
+    const reviewRail = screen.getByRole('complementary', {
+      name: /review status/i,
+    })
+    const issuesSection = document.querySelector('#issues-panel') as HTMLElement
+
     expect(
-      (
-        container.querySelector('#document-panel') as HTMLElement
-      ).compareDocumentPosition(
-        container.querySelector('#issues-panel') as HTMLElement,
+      within(reviewRail).getByRole('heading', { name: /submission blocked/i }),
+    ).toBeInTheDocument()
+    expect(
+      within(reviewRail).queryByText(/borrower income analysis is incomplete/i),
+    ).not.toBeInTheDocument()
+    expect(
+      within(issuesSection).getByText(
+        /borrower income analysis is incomplete/i,
       ),
-    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    ).toBeInTheDocument()
   })
 
   it('provides mobile section links for issues and document access', () => {
@@ -64,14 +148,16 @@ describe('ReviewPageView', () => {
 
     renderReviewPageView(review)
 
-    expect(screen.getByRole('link', { name: /^issues$/i })).toHaveAttribute(
-      'href',
-      '#issues-panel',
-    )
-    expect(screen.getByRole('link', { name: /^document$/i })).toHaveAttribute(
-      'href',
-      '#document-panel',
-    )
+    const sectionLinks = screen.getAllByRole('link', {
+      name: /^(document|issues)$/i,
+    })
+
+    expect(sectionLinks.map((link) => link.textContent)).toEqual([
+      'Document',
+      'Issues',
+    ])
+    expect(sectionLinks[0]).toHaveAttribute('href', '#document-panel')
+    expect(sectionLinks[1]).toHaveAttribute('href', '#issues-panel')
   })
 
   it('renders the integrated missing-document state without hiding issues', () => {
@@ -88,10 +174,14 @@ describe('ReviewPageView', () => {
     expect(
       screen.getByText(/no issues found on the latest uploaded document/i),
     ).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /view all/i })).toBeNull()
     expect(
       screen.getByRole('button', { name: /submit review/i }),
     ).toBeDisabled()
-    expect(screen.getByText(/upload a corrected document/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /document required/i }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByText(/upload a corrected document/i)).toHaveLength(2)
   })
 
   it('blocks submission when critical or major issues are present', () => {
@@ -103,7 +193,7 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /submission blocked/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/2 blocking issues must be fixed in a new upload/i),
+      screen.getByText(/4 blocking issues must be fixed in a new upload/i),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /submit review/i }),
