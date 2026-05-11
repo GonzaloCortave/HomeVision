@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import {
   ReviewPageErrorState,
   ReviewPageLoadingState,
@@ -27,21 +27,6 @@ const ReviewPageContainer = ({
   const [submittedReviewKey, setSubmittedReviewKey] = useState<string | null>(
     null,
   )
-  const submissionState =
-    reviewQuery.status === 'success'
-      ? getSubmissionState(reviewQuery.data)
-      : null
-  const currentReviewKey =
-    reviewQuery.status === 'success' ? getReviewKey(reviewQuery.data) : null
-  const canSubmitCurrentReview = submissionState?.canSubmit ?? false
-  const hasSubmittedReview =
-    currentReviewKey !== null && submittedReviewKey === currentReviewKey
-
-  const handleSubmitReview = useCallback(() => {
-    if (currentReviewKey !== null && canSubmitCurrentReview) {
-      setSubmittedReviewKey(currentReviewKey)
-    }
-  }, [canSubmitCurrentReview, currentReviewKey])
 
   if (reviewQuery.status === 'loading') {
     return <ReviewPageLoadingState />
@@ -57,6 +42,15 @@ const ReviewPageContainer = ({
   }
 
   const review = reviewQuery.data
+  const submissionState = getSubmissionState(review)
+  const currentReviewKey = getReviewKey(review)
+  const hasSubmittedReview = submittedReviewKey === currentReviewKey
+
+  const handleSubmitReview = () => {
+    if (submissionState.canSubmit) {
+      setSubmittedReviewKey(currentReviewKey)
+    }
+  }
 
   return (
     <ReviewPageView
@@ -64,7 +58,7 @@ const ReviewPageContainer = ({
       issues={sortIssuesBySeverityAndPage(review)}
       onSubmitReview={handleSubmitReview}
       review={review}
-      submissionState={getSubmissionState(review)}
+      submissionState={submissionState}
     />
   )
 }

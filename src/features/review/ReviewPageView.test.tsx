@@ -193,7 +193,9 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /submission blocked/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/4 blocking issues must be fixed in a new upload/i),
+      screen.getByText(
+        /4 blocking issues must be fixed in the source document/i,
+      ),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /submit review/i }),
