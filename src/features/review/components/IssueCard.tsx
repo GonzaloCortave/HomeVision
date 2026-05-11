@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import Button from '../../../shared/components/ui/Button'
+import { isBlockingIssue } from '../domain/reviewSelectors'
 import type { ReviewIssue } from '../domain/reviewTypes'
 import { issueSeverityPresentation } from './issueSeverityPresentation'
 
@@ -13,6 +14,7 @@ const DESCRIPTION_EXPAND_THRESHOLD = 150
 const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
   const descriptionId = useId()
   const severity = issueSeverityPresentation[issue.severity]
+  const blocksSubmission = isBlockingIssue(issue)
   const [isExpanded, setIsExpanded] = useState(false)
   const TitleHeading = titleHeadingLevel
   const canExpandDescription =
@@ -30,10 +32,24 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
         <span className="text-xs font-medium text-slate-500">
           Page {issue.page}
         </span>
+        <span
+          className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
+            blocksSubmission
+              ? 'border-red-200 bg-red-50 text-red-800'
+              : 'border-sky-200 bg-sky-50 text-sky-800'
+          }`}
+        >
+          {blocksSubmission ? 'Blocks submission' : 'Can be ignored'}
+        </span>
       </div>
       <TitleHeading className="mt-3 text-sm font-semibold leading-6 text-slate-950">
         {issue.title}
       </TitleHeading>
+      <p className="mt-2 text-xs font-medium leading-5 text-slate-500">
+        {blocksSubmission
+          ? 'Fix this in the source document before submitting.'
+          : 'This issue does not block submission.'}
+      </p>
       {issue.description ? (
         <div className="mt-1 flex flex-1 flex-col">
           <p
