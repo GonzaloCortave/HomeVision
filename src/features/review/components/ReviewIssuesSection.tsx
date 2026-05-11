@@ -1,6 +1,6 @@
 import type { IssueSeverity, ReviewIssue } from '../domain/reviewTypes'
 import { formatIssueCount } from '../utils/reviewFormatters'
-import IssueCard from './IssueCard'
+import IssueList from './IssueList'
 import { issueSeverityPresentation } from './issueSeverityPresentation'
 import { REVIEW_SECTION_IDS } from './reviewSectionIds'
 
@@ -68,7 +68,7 @@ const ReviewIssuesSection = ({ issues }: ReviewIssuesSectionProps) => {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-600">
+        <div className="rounded-lg border border-dashed border-emerald-200 bg-emerald-50 px-4 py-6 text-sm text-emerald-800">
           No issues found on the latest uploaded document.
         </div>
       )}
@@ -102,17 +102,12 @@ const IssueSeverityGroup = ({
           {issues.length}
         </span>
       </div>
-      {issues.length > 0 ? (
-        <ol aria-label={`${heading} issues`} className="space-y-3">
-          {issues.map((issue) => (
-            <IssueCard issue={issue} key={issue.id} titleHeadingLevel="h4" />
-          ))}
-        </ol>
-      ) : (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-600">
-          {emptyMessage}
-        </div>
-      )}
+      <IssueList
+        ariaLabel={`${heading} issues`}
+        emptyMessage={emptyMessage}
+        issues={issues}
+        titleHeadingLevel="h4"
+      />
     </section>
   )
 }

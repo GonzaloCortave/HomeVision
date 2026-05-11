@@ -22,6 +22,10 @@ describe('IssueCard', () => {
 
     expect(screen.getByText('Critical')).toBeInTheDocument()
     expect(screen.getByText('Page 2')).toBeInTheDocument()
+    expect(screen.getByText('Blocks submission')).toBeInTheDocument()
+    expect(
+      screen.getByText(/fix this in the source document before submitting/i),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
         name: /borrower income analysis is incomplete/i,
@@ -29,6 +33,17 @@ describe('IssueCard', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(/income support is missing/i)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /show more/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /resolve/i })).toBeNull()
+  })
+
+  it('marks minor issues as non-blocking', () => {
+    render(<IssueCard issue={createIssue({ severity: 'minor' })} />)
+
+    expect(screen.getByText('Minor')).toBeInTheDocument()
+    expect(screen.getByText('Can be ignored')).toBeInTheDocument()
+    expect(
+      screen.getByText(/this issue does not block submission/i),
+    ).toBeInTheDocument()
   })
 
   it('omits the description block when no description is provided', () => {
