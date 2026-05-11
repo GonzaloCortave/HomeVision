@@ -8,7 +8,7 @@ export type ReviewSubmissionPanelProps = {
   submissionState: SubmissionState
 }
 
-type SubmissionPanelContent = {
+type ReviewSubmissionPanelContent = {
   buttonLabel: string
   description: string
   isButtonDisabled: boolean
@@ -16,27 +16,26 @@ type SubmissionPanelContent = {
   title: string
 }
 
+const SUBMISSION_HELPER_ID = 'review-submission-helper'
+
 const ReviewSubmissionPanel = ({
   hasSubmittedReview,
   onSubmitReview,
   submissionState,
 }: ReviewSubmissionPanelProps) => {
-  const content = getSubmissionPanelContent(submissionState, hasSubmittedReview)
+  const content = getReviewSubmissionPanelContent(
+    submissionState,
+    hasSubmittedReview,
+  )
 
   return (
-    <section
-      aria-labelledby="review-submission-heading"
-      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-    >
+    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase text-sky-700">
             Submission
           </p>
-          <h3
-            className="mt-1 text-base font-semibold text-slate-950"
-            id="review-submission-heading"
-          >
+          <h3 className="mt-1 text-base font-semibold text-slate-950">
             {content.title}
           </h3>
         </div>
@@ -44,10 +43,15 @@ const ReviewSubmissionPanel = ({
           {content.statusLabel}
         </span>
       </div>
-      <p aria-live="polite" className="mt-3 text-sm leading-6 text-slate-600">
+      <p
+        aria-live="polite"
+        className="mt-3 text-sm leading-6 text-slate-600"
+        id={SUBMISSION_HELPER_ID}
+      >
         {content.description}
       </p>
       <Button
+        aria-describedby={SUBMISSION_HELPER_ID}
         className="mt-4 w-full sm:w-auto"
         disabled={content.isButtonDisabled}
         onClick={onSubmitReview}
@@ -58,14 +62,15 @@ const ReviewSubmissionPanel = ({
   )
 }
 
-const getSubmissionPanelContent = (
+const getReviewSubmissionPanelContent = (
   submissionState: SubmissionState,
   hasSubmittedReview: boolean,
-): SubmissionPanelContent => {
+): ReviewSubmissionPanelContent => {
   if (hasSubmittedReview) {
     return {
       buttonLabel: 'Submitted',
-      description: 'The review has been marked submitted.',
+      description:
+        'The review has been submitted locally for this review session.',
       isButtonDisabled: true,
       statusLabel: 'Submitted',
       title: 'Review submitted',
@@ -78,7 +83,7 @@ const getSubmissionPanelContent = (
         buttonLabel: 'Submit review',
         description: `${formatBlockingIssueCount(
           submissionState.blockingIssues.length,
-        )} must be fixed in a new upload before this review can be submitted.`,
+        )} must be fixed in the source document, then uploaded as a corrected version before submitting.`,
         isButtonDisabled: true,
         statusLabel: 'Blocked',
         title: 'Submission blocked',
@@ -107,8 +112,8 @@ const getSubmissionPanelContent = (
         buttonLabel: 'Submit review',
         description: submissionState.hasMinorIssues
           ? 'Only minor issues remain. They do not block submission.'
-          : 'No critical or major issues were found.',
-        isButtonDisabled: false,
+          : 'No critical or major issues remain.',
+        isButtonDisabled: !submissionState.canSubmit,
         statusLabel: 'Ready',
         title: 'Ready to submit',
       }

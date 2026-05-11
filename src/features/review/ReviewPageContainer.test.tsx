@@ -6,6 +6,7 @@ import ReviewPageContainer, { type ReviewLoader } from './ReviewPageContainer'
 
 afterEach(() => {
   cleanup()
+  vi.restoreAllMocks()
 })
 
 describe('ReviewPageContainer', () => {
@@ -104,7 +105,8 @@ describe('ReviewPageContainer', () => {
     )
   })
 
-  it('marks a ready review submitted locally', async () => {
+  it('marks a ready review submitted locally without calling a backend endpoint', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
     const loadReviewData = vi.fn<ReviewLoader>(() =>
       Promise.resolve(createReviewMock('noIssues')),
     )
@@ -119,5 +121,6 @@ describe('ReviewPageContainer', () => {
       screen.getByRole('heading', { name: /review submitted/i }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /submitted/i })).toBeDisabled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 })
