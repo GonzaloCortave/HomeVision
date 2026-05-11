@@ -1,0 +1,124 @@
+import type { IssueCounts, SubmissionState } from '../domain/reviewSelectors'
+import { formatReviewStatus } from '../utils/reviewFormatters'
+
+export type ReviewSummaryProps = {
+  submissionState: SubmissionState
+}
+
+type SummaryContent = {
+  accentClassName: string
+  eyebrow: string
+  title: string
+  description: string
+}
+
+const severityCountItems: ReadonlyArray<{
+  countKey: keyof Pick<IssueCounts, 'critical' | 'major' | 'minor'>
+  label: string
+  valueClassName: string
+}> = [
+  {
+    countKey: 'critical',
+    label: 'Critical',
+    valueClassName: 'text-red-800',
+  },
+  {
+    countKey: 'major',
+    label: 'Major',
+    valueClassName: 'text-amber-800',
+  },
+  {
+    countKey: 'minor',
+    label: 'Minor',
+    valueClassName: 'text-slate-700',
+  },
+]
+
+const ReviewSummary = ({ submissionState }: ReviewSummaryProps) => {
+  const content = getSummaryContent(submissionState)
+  const issueCounts = submissionState.issueCounts
+
+  return (
+    <section
+      aria-labelledby="review-summary-heading"
+      className={`rounded-lg border bg-white p-4 shadow-sm ${content.accentClassName}`}
+    >
+      <p className="text-xs font-semibold uppercase text-slate-500">
+        Review status
+      </p>
+      <h3
+        className="mt-1 text-base font-semibold text-slate-950"
+        id="review-summary-heading"
+      >
+        {content.title}
+      </h3>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        {content.description}
+      </p>
+      <dl
+        aria-label="Issue counts by severity"
+        className="mt-4 grid grid-cols-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-50"
+      >
+        {severityCountItems.map((item) => (
+          <div
+            className="border-r border-slate-200 px-3 py-2 last:border-r-0"
+            key={item.countKey}
+          >
+            <dt className="text-xs font-medium text-slate-500">{item.label}</dt>
+            <dd className={`mt-1 text-lg font-semibold ${item.valueClassName}`}>
+              {issueCounts[item.countKey]}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-3 text-xs font-medium uppercase text-slate-500">
+        {content.eyebrow}
+      </p>
+    </section>
+  )
+}
+
+const getSummaryContent = (
+  submissionState: SubmissionState,
+): SummaryContent => {
+  switch (submissionState.state) {
+    case 'blocked':
+      return {
+        accentClassName: 'border-red-200 ring-1 ring-red-100',
+        description:
+          'Fix critical and major issues in the source document, then upload a corrected version for review.',
+        eyebrow: `${submissionState.issueCounts.blocking} blocking ${
+          submissionState.issueCounts.blocking === 1 ? 'issue' : 'issues'
+        }`,
+        title: 'Blocked by critical or major issues',
+      }
+    case 'missing_document':
+      return {
+        accentClassName: 'border-red-200 ring-1 ring-red-100',
+        description:
+          'The uploaded document is unavailable. Upload a corrected document before submitting this review.',
+        eyebrow: 'Document required',
+        title: 'Document required',
+      }
+    case 'not_reviewable':
+      return {
+        accentClassName: 'border-slate-200',
+        description: `This review is ${formatReviewStatus(
+          submissionState.reviewStatus,
+        )}. Reviews can only be submitted while they are on review.`,
+        eyebrow: 'Not submittable',
+        title: 'Not ready for submission',
+      }
+    case 'ready':
+      return {
+        accentClassName: 'border-emerald-200 ring-1 ring-emerald-100',
+        description: submissionState.hasMinorIssues
+          ? 'Minor issues do not block submission. Review them if needed, or submit the review.'
+          : 'Ready to submit. No critical or major issues remain.',
+        eyebrow: 'Ready',
+        title: 'No blockers remain',
+      }
+  }
+}
+
+export default ReviewSummary

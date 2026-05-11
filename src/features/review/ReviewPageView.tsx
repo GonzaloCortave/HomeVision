@@ -1,6 +1,7 @@
 import IssuePanel from './components/IssuePanel'
 import ReviewDocumentSection from './components/ReviewDocumentSection'
 import ReviewHeader from './components/ReviewHeader'
+import ReviewIssuesSection from './components/ReviewIssuesSection'
 import ReviewSectionNav from './components/ReviewSectionNav'
 import type { SubmissionState } from './domain/reviewSelectors'
 import type { Review, ReviewIssue } from './domain/reviewTypes'
@@ -25,7 +26,7 @@ const ReviewPageView = ({
       <div className="mx-auto flex max-w-7xl flex-col gap-5">
         <ReviewHeader review={review} />
         <ReviewSectionNav />
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(20rem,0.9fr)] lg:items-start">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-start">
           <ReviewDocumentSection
             documentUrl={review.document.url}
             reviewName={review.name}
@@ -37,6 +38,7 @@ const ReviewPageView = ({
             submissionState={submissionState}
           />
         </div>
+        <ReviewIssuesSection issues={issues} />
       </div>
     </main>
   )

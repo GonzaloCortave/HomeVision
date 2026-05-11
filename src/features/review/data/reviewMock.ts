@@ -46,6 +46,15 @@ const criticalIssue: ApiReviewIssue = {
     'The income analysis section is missing required support. Correct the source document and upload a new version before submission.',
 }
 
+const criticalCollateralIssue: ApiReviewIssue = {
+  id: 'issue-004',
+  severity: 'critical',
+  page: 1,
+  title: 'Collateral address does not match the packet',
+  description:
+    'The property address on the appraisal cover page does not match the address in the review packet. Confirm the source document reflects the same collateral address across every required section before uploading a corrected version for review.',
+}
+
 const majorIssue: ApiReviewIssue = {
   id: 'issue-002',
   severity: 'major',
@@ -53,6 +62,15 @@ const majorIssue: ApiReviewIssue = {
   title: 'Flood certification is missing',
   description:
     'The packet does not include the flood certification needed for collateral review. This blocks submission until the uploaded document is replaced.',
+}
+
+const majorSignatureIssue: ApiReviewIssue = {
+  id: 'issue-005',
+  severity: 'major',
+  page: 2,
+  title: 'Reviewer signature date is missing',
+  description:
+    'The certification page includes the reviewer signature block, but the signature date is blank. Add the completed date to the source document so the review packet can be submitted.',
 }
 
 const minorIssue: ApiReviewIssue = {
@@ -64,13 +82,39 @@ const minorIssue: ApiReviewIssue = {
     'One section heading uses inconsistent capitalization. This does not block submission.',
 }
 
+const minorFormattingIssue: ApiReviewIssue = {
+  id: 'issue-006',
+  severity: 'minor',
+  page: 1,
+  title: 'Supporting note wraps awkwardly',
+  description:
+    'A supporting note wraps onto a second line in the generated packet. This is cosmetic and can be ignored if the blocking issues are corrected.',
+}
+
+const minorPunctuationIssue: ApiReviewIssue = {
+  id: 'issue-007',
+  severity: 'minor',
+  page: 3,
+  title: 'Trailing punctuation is inconsistent',
+  description:
+    'One bullet in the reviewer comments section ends without punctuation while neighboring bullets use periods. This does not block submission.',
+}
+
 export const blockedReviewMock: ApiReview = {
   name: '123-maple-appraisal-review.pdf',
   uploaded_at: '2026-05-07T14:18:00.000Z',
   status: 'on_review',
   version: 2,
   user: reviewUser,
-  issues: [criticalIssue, majorIssue, minorIssue],
+  issues: [
+    criticalIssue,
+    criticalCollateralIssue,
+    majorIssue,
+    majorSignatureIssue,
+    minorIssue,
+    minorFormattingIssue,
+    minorPunctuationIssue,
+  ],
   document: sampleDocument,
 }
 
@@ -81,7 +125,7 @@ export const minorOnlyReviewMock: ApiReview = {
   name: '123-maple-minor-only-review.pdf',
   uploaded_at: '2026-05-07T15:04:00.000Z',
   version: 3,
-  issues: [minorIssue],
+  issues: [minorIssue, minorFormattingIssue, minorPunctuationIssue],
 }
 
 export const noIssuesReviewMock: ApiReview = {
@@ -98,8 +142,22 @@ export const createdReviewMock: ApiReview = {
   version: 1,
 }
 
+export const createdWithIssuesReviewMock: ApiReview = {
+  ...blockedReviewMock,
+  name: '123-maple-created-with-issues-review.pdf',
+  status: 'created',
+  version: 1,
+}
+
 export const processingReviewMock: ApiReview = {
   ...noIssuesReviewMock,
+  status: 'processing',
+  version: 1,
+}
+
+export const processingWithIssuesReviewMock: ApiReview = {
+  ...blockedReviewMock,
+  name: '123-maple-processing-with-issues-review.pdf',
   status: 'processing',
   version: 1,
 }
@@ -108,6 +166,13 @@ export const submittedReviewMock: ApiReview = {
   ...noIssuesReviewMock,
   status: 'submitted',
   version: 4,
+}
+
+export const submittedWithIssuesReviewMock: ApiReview = {
+  ...blockedReviewMock,
+  name: '123-maple-submitted-with-issues-review.pdf',
+  status: 'submitted',
+  version: 5,
 }
 
 export const missingDocumentReviewMock: ApiReview = {
@@ -119,14 +184,27 @@ export const missingDocumentReviewMock: ApiReview = {
   },
 }
 
+export const missingDocumentWithIssuesReviewMock: ApiReview = {
+  ...minorOnlyReviewMock,
+  name: '123-maple-missing-document-with-issues-review.pdf',
+  document: {
+    ...sampleDocument,
+    url: null,
+  },
+}
+
 export const reviewMockVariants = {
   blocked: blockedReviewMock,
   minorOnly: minorOnlyReviewMock,
   noIssues: noIssuesReviewMock,
   created: createdReviewMock,
+  createdWithIssues: createdWithIssuesReviewMock,
   processing: processingReviewMock,
+  processingWithIssues: processingWithIssuesReviewMock,
   submitted: submittedReviewMock,
+  submittedWithIssues: submittedWithIssuesReviewMock,
   missingDocument: missingDocumentReviewMock,
+  missingDocumentWithIssues: missingDocumentWithIssuesReviewMock,
 } as const
 
 export function createReviewMock(
