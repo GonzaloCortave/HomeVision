@@ -15,11 +15,15 @@ describe('ReviewSubmissionPanel', () => {
     renderReviewSubmissionPanel(createReviewMock('blocked'))
 
     const submitButton = screen.getByRole('button', { name: /submit review/i })
+    const helperText = screen.getByText(
+      /4 blocking issues must be fixed in the source document/i,
+    )
 
     expect(
       screen.getByRole('heading', { name: /submission blocked/i }),
     ).toBeInTheDocument()
     expect(submitButton).toBeDisabled()
+    expect(submitButton).toHaveAttribute('aria-describedby', helperText.id)
     expect(submitButton).toHaveAccessibleDescription(
       /4 blocking issues must be fixed in the source document/i,
     )

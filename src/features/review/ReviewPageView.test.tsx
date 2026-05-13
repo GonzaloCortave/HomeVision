@@ -319,6 +319,8 @@ describe('ReviewPageView', () => {
         { name: /heading capitalization/i },
       ),
     ).toBeInTheDocument()
+    expect(screen.getByText(/no critical issues/i)).toBeInTheDocument()
+    expect(screen.getByText(/no major issues/i)).toBeInTheDocument()
     expect(
       screen.queryByRole('heading', { name: /submission blocked/i }),
     ).not.toBeInTheDocument()
@@ -329,6 +331,39 @@ describe('ReviewPageView', () => {
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     expect(onSubmitReview).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps non-reviewable reviews unavailable even when no issues remain', () => {
+    const review = createReviewMock('created')
+    const onSubmitReview = vi.fn()
+
+    renderReviewPageView(review, { onSubmitReview })
+
+    expect(screen.getByText('created')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /not ready for submission/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /submission unavailable/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByText(
+        /reviews can only be submitted while they are on review/i,
+      ),
+    ).toHaveLength(2)
+    expect(
+      screen.getByText(/no issues found on the latest uploaded document/i),
+    ).toBeInTheDocument()
+
+    const submitButton = screen.getByRole('button', {
+      name: /submit review/i,
+    })
+
+    expect(submitButton).toBeDisabled()
+
+    fireEvent.click(submitButton)
+
+    expect(onSubmitReview).not.toHaveBeenCalled()
   })
 
   it('renders no-issues state as ready without issue navigation', () => {

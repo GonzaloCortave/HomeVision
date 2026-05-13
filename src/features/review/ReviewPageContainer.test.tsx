@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createReviewMock } from './data/reviewMock'
 import {
@@ -70,6 +70,89 @@ describe('ReviewPageContainer', () => {
       }),
     ).not.toBeInTheDocument()
     expect(secondLoader).toHaveBeenCalledTimes(1)
+  })
+
+  it('ignores stale successful loads after a newer loader resolves', async () => {
+    const firstLoad = createDeferred<Review>()
+    const secondLoad = createDeferred<Review>()
+    const firstLoader = vi.fn<ReviewLoader>(() => firstLoad.promise)
+    const secondLoader = vi.fn<ReviewLoader>(() => secondLoad.promise)
+
+    const { rerender } = render(
+      <ReviewPageContainer loadReviewData={firstLoader} />,
+    )
+
+    rerender(<ReviewPageContainer loadReviewData={secondLoader} />)
+
+    await act(async () => {
+      secondLoad.resolve(createReviewMock('minorOnly'))
+      await secondLoad.promise
+    })
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /123-maple-minor-only-review\.pdf/i,
+      }),
+    ).toBeInTheDocument()
+
+    await act(async () => {
+      firstLoad.resolve(createReviewMock('blocked'))
+      await firstLoad.promise
+    })
+
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: /123-maple-minor-only-review\.pdf/i,
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', {
+        level: 1,
+        name: /123-maple-appraisal-review\.pdf/i,
+      }),
+    ).not.toBeInTheDocument()
+    expect(firstLoader).toHaveBeenCalledTimes(1)
+    expect(secondLoader).toHaveBeenCalledTimes(1)
+  })
+
+  it('ignores stale rejected loads after a newer loader resolves', async () => {
+    const firstLoad = createDeferred<Review>()
+    const secondLoad = createDeferred<Review>()
+    const firstLoader = vi.fn<ReviewLoader>(() => firstLoad.promise)
+    const secondLoader = vi.fn<ReviewLoader>(() => secondLoad.promise)
+
+    const { rerender } = render(
+      <ReviewPageContainer loadReviewData={firstLoader} />,
+    )
+
+    rerender(<ReviewPageContainer loadReviewData={secondLoader} />)
+
+    await act(async () => {
+      secondLoad.resolve(createReviewMock('noIssues'))
+      await secondLoad.promise
+    })
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /123-maple-clean-review\.pdf/i,
+      }),
+    ).toBeInTheDocument()
+
+    await act(async () => {
+      firstLoad.reject(new Error('Stale review loader failure.'))
+      await firstLoad.promise.catch(() => undefined)
+    })
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: /123-maple-clean-review\.pdf/i,
+      }),
+    ).toBeInTheDocument()
   })
 
   it('keeps showing loading during an A to B to A loader switch until fresh A data resolves', async () => {
@@ -296,3 +379,24 @@ describe('ReviewPageContainer', () => {
     expect(screen.getByRole('button', { name: /submit review/i })).toBeEnabled()
   })
 })
+
+type Deferred<TValue> = {
+  promise: Promise<TValue>
+  reject: (reason: unknown) => void
+  resolve: (value: TValue) => void
+}
+
+const createDeferred = <TValue,>(): Deferred<TValue> => {
+  let rejectDeferred: (reason: unknown) => void = () => {}
+  let resolveDeferred: (value: TValue) => void = () => {}
+  const promise = new Promise<TValue>((resolve, reject) => {
+    resolveDeferred = resolve
+    rejectDeferred = reject
+  })
+
+  return {
+    promise,
+    reject: rejectDeferred,
+    resolve: resolveDeferred,
+  }
+}
