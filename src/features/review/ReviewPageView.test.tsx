@@ -160,7 +160,7 @@ describe('ReviewPageView', () => {
     expect(sectionLinks[1]).toHaveAttribute('href', '#issues-panel')
   })
 
-  it('renders the integrated missing-document state without hiding issues', () => {
+  it('renders the integrated missing-document state without a document link', () => {
     const review = createReviewMock('missingDocument')
 
     renderReviewPageView(review)
@@ -169,10 +169,13 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /document unavailable/i }),
     ).toBeInTheDocument()
     expect(
+      screen.getByText(/an uploaded pdf is required for this review/i),
+    ).toBeInTheDocument()
+    expect(
       screen.getByRole('heading', { level: 2, name: /issues/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/no issues found on the latest uploaded document/i),
+      screen.getByText(/no issues are available from review data/i),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /view all/i })).toBeNull()
     expect(
@@ -182,6 +185,98 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /document required/i }),
     ).toBeInTheDocument()
     expect(screen.getAllByText(/upload a corrected document/i)).toHaveLength(2)
+    expect(
+      screen.queryByRole('link', { name: /open document in new tab/i }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByTitle(/pdf/i)).not.toBeInTheDocument()
+  })
+
+  it('treats blank document URLs as missing in both viewer and issue copy', () => {
+    const review: Review = {
+      ...createReviewMock('noIssues'),
+      document: {
+        pages: [],
+        url: '   ',
+      },
+    }
+
+    renderReviewPageView(review)
+
+    expect(
+      screen.getByRole('heading', { name: /document unavailable/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/no issues are available from review data/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText(/no issues found on the latest uploaded document/i),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps issue context visible when the PDF is missing', () => {
+    const review = createReviewMock('missingDocumentWithIssues')
+
+    renderReviewPageView(review)
+
+    expect(
+      screen.getByRole('heading', { name: /document unavailable/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByText(
+        /3 current issues from review data. pdf preview unavailable/i,
+      ),
+    ).toHaveLength(2)
+    expect(
+      screen.getByRole('link', { name: /view all 3 issues/i }),
+    ).toHaveAttribute('href', '#issues-panel')
+    expect(
+      within(screen.getByRole('list', { name: /minor issues/i })).getByRole(
+        'heading',
+        { name: /heading capitalization/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: /minor issues/i })).getByRole(
+        'heading',
+        { name: /supporting note wraps awkwardly/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /document required/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /submit review/i }),
+    ).toBeDisabled()
+    expect(
+      screen.queryByRole('link', { name: /open document in new tab/i }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByTitle(/pdf/i)).not.toBeInTheDocument()
+  })
+
+  it('surfaces the missing PDF before blockers while keeping blocking counts visible', () => {
+    const review = createReviewMock('missingDocumentWithBlockingIssues')
+
+    renderReviewPageView(review)
+
+    expect(
+      screen.getByRole('heading', { name: /document required/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /submission blocked/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/uploaded document is unavailable/i),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/4 blocking issues/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /submit review/i }),
+    ).toBeDisabled()
+    expect(
+      within(screen.getByRole('list', { name: /critical issues/i })).getByRole(
+        'heading',
+        { name: /borrower income analysis/i },
+      ),
+    ).toBeInTheDocument()
   })
 
   it('blocks submission when critical or major issues are present', () => {
@@ -209,8 +304,57 @@ describe('ReviewPageView', () => {
     renderReviewPageView(review, { onSubmitReview })
 
     expect(screen.getByText(/only minor issues remain/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/3 current issues on the latest uploaded document/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/3 current issues grouped by severity/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /view all 3 issues/i }),
+    ).toHaveAttribute('href', '#issues-panel')
+    expect(
+      within(screen.getByRole('list', { name: /minor issues/i })).getByRole(
+        'heading',
+        { name: /heading capitalization/i },
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: /submission blocked/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/blocking issues must be fixed/i),
+    ).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    expect(onSubmitReview).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders no-issues state as ready without issue navigation', () => {
+    const review = createReviewMock('noIssues')
+    const onSubmitReview = vi.fn()
+
+    renderReviewPageView(review, { onSubmitReview })
+
+    expect(
+      screen.getByText(/no issues found on the latest uploaded document/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /no blockers remain/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByText(/no critical or major issues remain/i),
+    ).toHaveLength(2)
+    expect(screen.queryByRole('link', { name: /view all/i })).toBeNull()
+
+    const submitButton = screen.getByRole('button', {
+      name: /submit review/i,
+    })
+
+    expect(submitButton).toBeEnabled()
+
+    fireEvent.click(submitButton)
 
     expect(onSubmitReview).toHaveBeenCalledTimes(1)
   })

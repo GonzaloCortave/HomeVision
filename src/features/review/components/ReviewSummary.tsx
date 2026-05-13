@@ -97,7 +97,12 @@ const getSummaryContent = (
         accentClassName: 'border-red-200 ring-1 ring-red-100',
         description:
           'The uploaded document is unavailable. Upload a corrected document before submitting this review.',
-        eyebrow: 'Document required',
+        eyebrow:
+          submissionState.issueCounts.blocking > 0
+            ? `Document required; ${submissionState.issueCounts.blocking} blocking ${
+                submissionState.issueCounts.blocking === 1 ? 'issue' : 'issues'
+              }`
+            : 'Document required',
         title: 'Document required',
       }
     case 'not_reviewable':

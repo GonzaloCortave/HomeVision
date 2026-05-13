@@ -8,18 +8,23 @@ import ReviewSubmissionPanel from './ReviewSubmissionPanel'
 
 export type IssuePanelProps = {
   hasSubmittedReview: boolean
+  hasDocument: boolean
   issues: readonly ReviewIssue[]
   onSubmitReview: () => void
   submissionState: SubmissionState
 }
 
 const IssuePanel = ({
+  hasDocument,
   hasSubmittedReview,
   issues,
   onSubmitReview,
   submissionState,
 }: IssuePanelProps) => {
   const issueCountLabel = formatIssueCount(issues.length)
+  const issueSourceCopy = hasDocument
+    ? `${issueCountLabel} on the latest uploaded document.`
+    : `${issueCountLabel} from review data. PDF preview unavailable.`
 
   return (
     <aside
@@ -37,7 +42,7 @@ const IssuePanel = ({
           Review status
         </h2>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          {issueCountLabel} on the latest uploaded document.
+          {issueSourceCopy}
         </p>
       </div>
       <ReviewSummary submissionState={submissionState} />

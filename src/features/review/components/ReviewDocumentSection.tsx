@@ -30,7 +30,7 @@ const ReviewDocumentSection = ({
       </div>
       <DocumentViewer
         documentUrl={documentUrl}
-        missingDocumentDescription="This review is missing an uploaded document URL. The PDF preview will be available after a corrected document is uploaded."
+        missingDocumentDescription="An uploaded PDF is required for this review. The preview will be available after a corrected document is uploaded."
         title={`${reviewName} PDF`}
         titleHeadingLevel="h3"
       />

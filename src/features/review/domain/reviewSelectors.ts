@@ -143,6 +143,7 @@ export function hasOnlyMinorIssues(review: Review): boolean {
 export function getSubmissionState(review: Review): SubmissionState {
   const issueCounts = getIssueCounts(review)
   const blockingIssues = getBlockingIssues(review)
+  const hasDocument = hasReviewDocument(review)
 
   if (review.status !== 'on_review') {
     return {
@@ -154,9 +155,9 @@ export function getSubmissionState(review: Review): SubmissionState {
     }
   }
 
-  if (blockingIssues.length > 0) {
+  if (!hasDocument) {
     return {
-      state: 'blocked',
+      state: 'missing_document',
       canSubmit: false,
       reviewStatus: review.status,
       blockingIssues,
@@ -164,9 +165,9 @@ export function getSubmissionState(review: Review): SubmissionState {
     }
   }
 
-  if (!hasReviewDocument(review)) {
+  if (blockingIssues.length > 0) {
     return {
-      state: 'missing_document',
+      state: 'blocked',
       canSubmit: false,
       reviewStatus: review.status,
       blockingIssues,
@@ -195,7 +196,7 @@ function compareIssuesBySeverityAndPage(
     return severityDelta
   }
 
-  const pageDelta = firstIssue.page - secondIssue.page
+  const pageDelta = compareIssuePages(firstIssue.page, secondIssue.page)
 
   if (pageDelta !== 0) {
     return pageDelta
@@ -208,4 +209,23 @@ function compareIssuesBySeverityAndPage(
   }
 
   return firstIssue.id.localeCompare(secondIssue.id)
+}
+
+function compareIssuePages(
+  firstPage: ReviewIssue['page'],
+  secondPage: ReviewIssue['page'],
+): number {
+  if (firstPage === null && secondPage === null) {
+    return 0
+  }
+
+  if (firstPage === null) {
+    return 1
+  }
+
+  if (secondPage === null) {
+    return -1
+  }
+
+  return firstPage - secondPage
 }
