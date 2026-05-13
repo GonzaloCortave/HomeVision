@@ -20,6 +20,8 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
   const canExpandDescription =
     (issue.description?.length ?? 0) > DESCRIPTION_EXPAND_THRESHOLD
   const isDescriptionCollapsed = canExpandDescription && !isExpanded
+  const pageLabel =
+    issue.page === null ? 'Page unavailable' : `Page ${issue.page}`
 
   return (
     <li className="flex min-h-60 flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -29,9 +31,7 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
         >
           {severity.label}
         </span>
-        <span className="text-xs font-medium text-slate-500">
-          Page {issue.page}
-        </span>
+        <span className="text-xs font-medium text-slate-500">{pageLabel}</span>
         <span
           className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
             blocksSubmission
@@ -39,7 +39,7 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
               : 'border-sky-200 bg-sky-50 text-sky-800'
           }`}
         >
-          {blocksSubmission ? 'Blocks submission' : 'Can be ignored'}
+          {blocksSubmission ? 'Blocks submission' : 'Non-blocking'}
         </span>
       </div>
       <TitleHeading className="mt-3 text-sm font-semibold leading-6 text-slate-950">

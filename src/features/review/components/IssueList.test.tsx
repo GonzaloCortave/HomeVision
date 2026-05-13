@@ -47,7 +47,7 @@ describe('IssueList', () => {
     expect(screen.getByText('Page 2')).toBeInTheDocument()
     expect(screen.getByText('Page 3')).toBeInTheDocument()
     expect(screen.getAllByText('Blocks submission')).toHaveLength(2)
-    expect(screen.getByText('Can be ignored')).toBeInTheDocument()
+    expect(screen.getByText('Non-blocking')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /resolve/i })).toBeNull()
   })
 

@@ -40,10 +40,16 @@ describe('IssueCard', () => {
     render(<IssueCard issue={createIssue({ severity: 'minor' })} />)
 
     expect(screen.getByText('Minor')).toBeInTheDocument()
-    expect(screen.getByText('Can be ignored')).toBeInTheDocument()
+    expect(screen.getByText('Non-blocking')).toBeInTheDocument()
     expect(
       screen.getByText(/this issue does not block submission/i),
     ).toBeInTheDocument()
+  })
+
+  it('renders a safe label when issue page is unavailable', () => {
+    render(<IssueCard issue={createIssue({ page: null })} />)
+
+    expect(screen.getByText('Page unavailable')).toBeInTheDocument()
   })
 
   it('omits the description block when no description is provided', () => {

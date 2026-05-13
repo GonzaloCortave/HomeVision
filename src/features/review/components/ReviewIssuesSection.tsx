@@ -5,6 +5,7 @@ import { issueSeverityPresentation } from './issueSeverityPresentation'
 import { REVIEW_SECTION_IDS } from './reviewSectionIds'
 
 export type ReviewIssuesSectionProps = {
+  hasDocument: boolean
   issues: readonly ReviewIssue[]
 }
 
@@ -32,8 +33,14 @@ const issueGroups: readonly IssueGroupConfig[] = [
   },
 ]
 
-const ReviewIssuesSection = ({ issues }: ReviewIssuesSectionProps) => {
+const ReviewIssuesSection = ({
+  hasDocument,
+  issues,
+}: ReviewIssuesSectionProps) => {
   const issueCountLabel = formatIssueCount(issues.length)
+  const issueSourceCopy = hasDocument
+    ? `${issueCountLabel} grouped by severity.`
+    : `${issueCountLabel} from review data. PDF preview unavailable.`
 
   return (
     <section
@@ -52,7 +59,7 @@ const ReviewIssuesSection = ({ issues }: ReviewIssuesSectionProps) => {
           Issues
         </h2>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          {issueCountLabel} grouped by severity.
+          {issueSourceCopy}
         </p>
       </div>
       {issues.length > 0 ? (
@@ -68,8 +75,16 @@ const ReviewIssuesSection = ({ issues }: ReviewIssuesSectionProps) => {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed border-emerald-200 bg-emerald-50 px-4 py-6 text-sm text-emerald-800">
-          No issues found on the latest uploaded document.
+        <div
+          className={`rounded-lg border border-dashed px-4 py-6 text-sm ${
+            hasDocument
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'border-amber-200 bg-amber-50 text-amber-900'
+          }`}
+        >
+          {hasDocument
+            ? 'No issues found on the latest uploaded document.'
+            : 'No issues are available from review data. Submission is blocked until a PDF is uploaded.'}
         </div>
       )}
     </section>

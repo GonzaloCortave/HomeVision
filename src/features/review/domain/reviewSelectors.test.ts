@@ -12,6 +12,7 @@ import {
 } from './reviewSelectors'
 import {
   normalizeReview,
+  ReviewContractError,
   type ApiReview,
   type IssueSeverity,
   type Review,
@@ -174,6 +175,11 @@ describe('review selectors', () => {
   it('sorts issues by severity, then page, then title, then id without mutating input', () => {
     const inputIssues = [
       createIssue('minor', { id: 'minor-b', page: 1, title: 'Zoning typo' }),
+      createIssue('major', {
+        id: 'major-no-page',
+        page: null,
+        title: 'Page reference missing',
+      }),
       createIssue('critical', {
         id: 'critical-page-4',
         page: 4,
@@ -199,6 +205,7 @@ describe('review selectors', () => {
       'critical-page-1',
       'critical-page-4',
       'major-page-2',
+      'major-no-page',
       'minor-a',
       'minor-b',
     ])
@@ -275,6 +282,28 @@ describe('review selectors', () => {
     })
   })
 
+  it('gives missing documents precedence over blocking issues', () => {
+    expect(
+      getSubmissionState(
+        createReview({
+          document: {
+            url: null,
+            pages: [],
+          },
+          issues: [createIssue('critical')],
+        }),
+      ),
+    ).toMatchObject({
+      state: 'missing_document',
+      canSubmit: false,
+      reviewStatus: 'on_review',
+      issueCounts: {
+        critical: 1,
+        blocking: 1,
+      },
+    })
+  })
+
   it('reports all non-reviewable statuses in submission state', () => {
     const statuses: ReviewStatus[] = ['created', 'processing', 'submitted']
 
@@ -288,9 +317,22 @@ describe('review selectors', () => {
   })
 
   it('normalizes API reviews into isolated domain objects', () => {
-    const apiReview: ApiReview = createReview({
+    const apiReview: ApiReview = {
+      ...createReview({
+        issues: [createIssue('minor')],
+      }),
       issues: [createIssue('minor')],
-    })
+      document: {
+        url: '/local-sample-uploaded-document.pdf',
+        pages: [
+          {
+            page_number: 1,
+            width: 612,
+            height: 792,
+          },
+        ],
+      },
+    }
 
     const normalizedReview = normalizeReview(apiReview)
 
@@ -300,6 +342,94 @@ describe('review selectors', () => {
     expect(normalizedReview.issues).not.toBe(apiReview.issues)
     expect(normalizedReview.document).not.toBe(apiReview.document)
     expect(normalizedReview.document.pages).not.toBe(apiReview.document.pages)
+  })
+
+  it('normalizes missing optional display fields while preserving safe review behavior', () => {
+    const normalizedReview = normalizeReview({
+      name: '',
+      uploaded_at: '',
+      status: 'on_review',
+      version: undefined,
+      user: null,
+      issues: [
+        {
+          id: '',
+          severity: 'minor',
+          page: '2',
+          title: '',
+        },
+        {
+          id: '',
+          severity: 'minor',
+          page: -1,
+          title: '',
+        },
+      ],
+      document: {
+        url: '/local-sample-uploaded-document.pdf',
+      },
+    })
+
+    expect(normalizedReview).toMatchObject({
+      name: 'Untitled review document',
+      uploaded_at: '',
+      status: 'on_review',
+      version: 0,
+      user: {
+        id: 'unknown-reviewer',
+        name: 'Unassigned reviewer',
+      },
+      document: {
+        url: '/local-sample-uploaded-document.pdf',
+        pages: [],
+      },
+    })
+    expect(normalizedReview.issues).toEqual([
+      {
+        id: 'issue-1',
+        severity: 'minor',
+        page: 2,
+        title: 'Issue 1',
+        description: undefined,
+      },
+      {
+        id: 'issue-2',
+        severity: 'minor',
+        page: null,
+        title: 'Issue 2',
+        description: undefined,
+      },
+    ])
+  })
+
+  it('throws controlled contract errors for submission-critical malformed API data', () => {
+    expect(() =>
+      normalizeReview({
+        ...createReview(),
+        issues: undefined,
+      }),
+    ).toThrow(ReviewContractError)
+
+    expect(() =>
+      normalizeReview({
+        ...createReview(),
+        status: 'ready_for_review',
+      }),
+    ).toThrow(/unsupported review status/i)
+
+    expect(() =>
+      normalizeReview({
+        ...createReview(),
+        issues: [
+          {
+            id: 'issue-001',
+            severity: 'blocker',
+            page: 1,
+            title: 'Unknown severity issue',
+          },
+        ],
+      }),
+    ).toThrow(/unsupported issue severity/i)
   })
 
   it('normalizes blank API document URLs to explicit null values', () => {
@@ -328,5 +458,47 @@ describe('review selectors', () => {
     expect(normalizedReview.document.url).toBe(
       '/local-sample-uploaded-document.pdf',
     )
+  })
+
+  it('allows only supported API document URL formats', () => {
+    expect(
+      normalizeReview(
+        createReview({
+          document: {
+            url: 'https://example.com/review-document',
+            pages: [],
+          },
+        }),
+      ).document.url,
+    ).toBe('https://example.com/review-document')
+    expect(
+      normalizeReview(
+        createReview({
+          document: {
+            url: 'http://example.com/review-document',
+            pages: [],
+          },
+        }),
+      ).document.url,
+    ).toBe('http://example.com/review-document')
+
+    for (const unsupportedUrl of [
+      'N/A',
+      'about:blank',
+      'javascript:alert(1)',
+      'documents/review.pdf',
+      '//example.com/review.pdf',
+    ]) {
+      expect(
+        normalizeReview(
+          createReview({
+            document: {
+              url: unsupportedUrl,
+              pages: [],
+            },
+          }),
+        ).document.url,
+      ).toBeNull()
+    }
   })
 })

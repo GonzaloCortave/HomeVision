@@ -44,7 +44,8 @@ const ReviewPageContainer = ({
   const review = reviewQuery.data
   const submissionState = getSubmissionState(review)
   const currentReviewKey = getReviewKey(review)
-  const hasSubmittedReview = submittedReviewKey === currentReviewKey
+  const hasSubmittedReview =
+    submissionState.canSubmit && submittedReviewKey === currentReviewKey
 
   const handleSubmitReview = () => {
     if (submissionState.canSubmit) {
@@ -64,7 +65,20 @@ const ReviewPageContainer = ({
 }
 
 const getReviewKey = (review: Review): string => {
-  return `${review.name}:${review.version}`
+  return JSON.stringify([
+    review.name,
+    review.version,
+    review.uploaded_at,
+    review.status,
+    review.document.url ?? 'missing-document',
+    review.issues.map((issue) => [
+      issue.id,
+      issue.severity,
+      issue.page,
+      issue.title,
+      issue.description ?? '',
+    ]),
+  ])
 }
 
 export default ReviewPageContainer

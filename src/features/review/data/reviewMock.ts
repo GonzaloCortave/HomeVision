@@ -193,6 +193,15 @@ export const missingDocumentWithIssuesReviewMock: ApiReview = {
   },
 }
 
+export const missingDocumentWithBlockingIssuesReviewMock: ApiReview = {
+  ...blockedReviewMock,
+  name: '123-maple-missing-document-with-blockers-review.pdf',
+  document: {
+    ...sampleDocument,
+    url: null,
+  },
+}
+
 export const reviewMockVariants = {
   blocked: blockedReviewMock,
   minorOnly: minorOnlyReviewMock,
@@ -205,6 +214,8 @@ export const reviewMockVariants = {
   submittedWithIssues: submittedWithIssuesReviewMock,
   missingDocument: missingDocumentReviewMock,
   missingDocumentWithIssues: missingDocumentWithIssuesReviewMock,
+  missingDocumentWithBlockingIssues:
+    missingDocumentWithBlockingIssuesReviewMock,
 } as const
 
 export function createReviewMock(
