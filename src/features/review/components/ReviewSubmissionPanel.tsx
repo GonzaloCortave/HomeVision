@@ -3,9 +3,11 @@ import {
   CheckCircle2,
   LockKeyhole,
   SendHorizontal,
+  Upload,
   type LucideIcon,
 } from 'lucide-react'
 import Button from '../../../shared/components/ui/Button'
+import ButtonLink from '../../../shared/components/ui/ButtonLink'
 import type { SubmissionState } from '../domain/reviewSelectors'
 import { formatReviewStatus } from '../utils/reviewFormatters'
 
@@ -13,33 +15,46 @@ export type ReviewSubmissionPanelProps = {
   hasSubmittedReview: boolean
   onSubmitReview: () => void
   submissionState: SubmissionState
+  uploadPageUrl: string
+  uploadVersion: number
 }
 
 type ReviewSubmissionPanelContent = {
-  buttonLabel: string
-  ButtonIcon: LucideIcon
+  canSubmit: boolean
   description: string
   Icon: LucideIcon
   iconClassName: string
-  isButtonDisabled: boolean
+  panelClassName: string
   statusLabel: string
+  statusLabelClassName: string
+  submitLabel: string
   title: string
+  uploadAccessibleLabel: string
+  uploadLabel: string
 }
 
+const SUBMISSION_HEADING_ID = 'review-submission-heading'
 const SUBMISSION_HELPER_ID = 'review-submission-helper'
 
 const ReviewSubmissionPanel = ({
   hasSubmittedReview,
   onSubmitReview,
   submissionState,
+  uploadPageUrl,
+  uploadVersion,
 }: ReviewSubmissionPanelProps) => {
   const content = getReviewSubmissionPanelContent(
     submissionState,
     hasSubmittedReview,
+    uploadVersion,
   )
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section
+      aria-describedby={SUBMISSION_HELPER_ID}
+      aria-labelledby={SUBMISSION_HEADING_ID}
+      className={`rounded-lg border bg-white p-4 shadow-sm ${content.panelClassName}`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <span
@@ -55,12 +70,17 @@ const ReviewSubmissionPanel = ({
             <p className="text-xs font-semibold uppercase text-sky-700">
               Submission
             </p>
-            <h3 className="mt-1 text-base font-semibold text-slate-950">
+            <h3
+              className="mt-1 text-base font-semibold text-slate-950"
+              id={SUBMISSION_HEADING_ID}
+            >
               {content.title}
             </h3>
           </div>
         </div>
-        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
+        <span
+          className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${content.statusLabelClassName}`}
+        >
           {content.statusLabel}
         </span>
       </div>
@@ -71,19 +91,41 @@ const ReviewSubmissionPanel = ({
       >
         {content.description}
       </p>
-      <Button
-        aria-describedby={SUBMISSION_HELPER_ID}
-        className="mt-4 w-full sm:w-auto"
-        disabled={content.isButtonDisabled}
-        onClick={onSubmitReview}
-      >
-        <content.ButtonIcon
-          aria-hidden="true"
-          className="size-4"
-          strokeWidth={2}
-        />
-        {content.buttonLabel}
-      </Button>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <Button
+          aria-describedby={SUBMISSION_HELPER_ID}
+          className="w-full"
+          disabled={!content.canSubmit}
+          onClick={onSubmitReview}
+          variant={content.canSubmit ? 'primary' : 'secondary'}
+        >
+          {content.canSubmit ? (
+            <SendHorizontal
+              aria-hidden="true"
+              className="size-4"
+              strokeWidth={2}
+            />
+          ) : (
+            <LockKeyhole
+              aria-hidden="true"
+              className="size-4"
+              strokeWidth={2}
+            />
+          )}
+          {content.submitLabel}
+        </Button>
+        <ButtonLink
+          aria-label={content.uploadAccessibleLabel}
+          aria-describedby={SUBMISSION_HELPER_ID}
+          className="w-full"
+          href={uploadPageUrl}
+          size="md"
+          variant={content.canSubmit ? 'secondary' : 'accent'}
+        >
+          <Upload aria-hidden="true" className="size-4" strokeWidth={2} />
+          {content.uploadLabel}
+        </ButtonLink>
+      </div>
     </section>
   )
 }
@@ -91,80 +133,87 @@ const ReviewSubmissionPanel = ({
 const getReviewSubmissionPanelContent = (
   submissionState: SubmissionState,
   hasSubmittedReview: boolean,
+  uploadVersion: number,
 ): ReviewSubmissionPanelContent => {
   if (hasSubmittedReview) {
     return {
-      buttonLabel: 'Submitted',
-      ButtonIcon: CheckCircle2,
+      canSubmit: false,
       description:
-        'The review has been submitted locally for this review session.',
+        'Submitted for this review session. Upload a new version if the document needs another change.',
       Icon: CheckCircle2,
       iconClassName: 'border-emerald-200 text-emerald-700',
-      isButtonDisabled: true,
+      panelClassName: 'border-slate-200',
       statusLabel: 'Submitted',
+      statusLabelClassName: 'border-slate-200 bg-slate-50 text-slate-700',
+      submitLabel: 'Submitted',
       title: 'Review submitted',
+      uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
+      uploadLabel: `Upload V${uploadVersion}`,
     }
   }
 
   switch (submissionState.state) {
     case 'blocked':
       return {
-        buttonLabel: 'Submit review',
-        ButtonIcon: LockKeyhole,
-        description: `${formatBlockingIssueCount(
-          submissionState.blockingIssues.length,
-        )} must be fixed in the source document, then uploaded as a corrected version before submitting.`,
+        canSubmit: false,
+        description: `Resolve blockers in the source document, then upload Version ${uploadVersion}.`,
         Icon: LockKeyhole,
         iconClassName: 'border-slate-200 text-slate-700',
-        isButtonDisabled: true,
+        panelClassName: 'border-slate-200',
         statusLabel: 'Blocked',
-        title: 'Submission blocked',
+        statusLabelClassName: 'border-red-200 bg-red-50 text-red-700',
+        submitLabel: 'Submit review',
+        title: 'Fix blockers before submitting',
+        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
+        uploadLabel: `Upload V${uploadVersion}`,
       }
     case 'missing_document':
       return {
-        buttonLabel: 'Submit review',
-        ButtonIcon: LockKeyhole,
-        description:
-          'Upload a corrected document before submitting this review.',
+        canSubmit: false,
+        description: `Upload the required document as Version ${uploadVersion}.`,
         Icon: CircleAlert,
-        iconClassName: 'border-red-200 text-red-700',
-        isButtonDisabled: true,
+        iconClassName: 'border-slate-200 text-slate-700',
+        panelClassName: 'border-slate-200',
         statusLabel: 'Blocked',
-        title: 'Submission blocked',
+        statusLabelClassName: 'border-red-200 bg-red-50 text-red-700',
+        submitLabel: 'Submit review',
+        title: 'Document required',
+        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
+        uploadLabel: `Upload V${uploadVersion}`,
       }
     case 'not_reviewable':
       return {
-        buttonLabel: 'Submit review',
-        ButtonIcon: LockKeyhole,
+        canSubmit: false,
         description: `This review is ${formatReviewStatus(
           submissionState.reviewStatus,
-        )}. Reviews can only be submitted while they are on review.`,
+        )}. Submit is available only while a review is on review.`,
         Icon: CircleAlert,
         iconClassName: 'border-slate-200 text-slate-600',
-        isButtonDisabled: true,
+        panelClassName: 'border-slate-200',
         statusLabel: 'Unavailable',
+        statusLabelClassName: 'border-slate-200 bg-slate-50 text-slate-700',
+        submitLabel: 'Submit review',
         title: 'Submission unavailable',
+        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
+        uploadLabel: `Upload V${uploadVersion}`,
       }
     case 'ready':
       return {
-        buttonLabel: 'Submit review',
-        ButtonIcon: SendHorizontal,
+        canSubmit: submissionState.canSubmit,
         description: submissionState.hasMinorIssues
-          ? 'Only minor issues remain. They do not block submission.'
-          : 'No critical or major issues remain.',
+          ? `Only minor issues remain. Submit this version, or upload Version ${uploadVersion} if it needs changes.`
+          : `Submit this version, or upload Version ${uploadVersion} if it needs changes.`,
         Icon: CheckCircle2,
         iconClassName: 'border-emerald-200 text-emerald-700',
-        isButtonDisabled: !submissionState.canSubmit,
+        panelClassName: 'border-slate-200',
         statusLabel: 'Ready',
+        statusLabelClassName: 'border-slate-200 bg-slate-50 text-slate-700',
+        submitLabel: 'Submit review',
         title: 'Ready to submit',
+        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
+        uploadLabel: `Upload V${uploadVersion}`,
       }
   }
-}
-
-const formatBlockingIssueCount = (blockingIssueCount: number): string => {
-  return blockingIssueCount === 1
-    ? '1 blocking issue'
-    : `${blockingIssueCount} blocking issues`
 }
 
 export default ReviewSubmissionPanel

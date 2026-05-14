@@ -19,10 +19,13 @@ describe('App', () => {
       screen.getByRole('heading', { level: 2, name: /issues/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: /submission blocked/i }),
+      screen.getByRole('heading', { name: /fix blockers before submitting/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /submit review/i }),
-    ).toBeDisabled()
+      screen.getByRole('link', { name: /upload version 3/i }),
+    ).toHaveAttribute(
+      'href',
+      '/upload?currentVersion=2&documentName=123-maple-appraisal-review.pdf&nextVersion=3',
+    )
   })
 })

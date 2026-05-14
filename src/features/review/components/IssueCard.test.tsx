@@ -23,9 +23,7 @@ describe('IssueCard', () => {
     expect(screen.getByText('Critical')).toBeInTheDocument()
     expect(screen.getByText('Page 2')).toBeInTheDocument()
     expect(screen.getByText('Blocks submission')).toBeInTheDocument()
-    expect(
-      screen.getByText(/fix this in the source document before submitting/i),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/fix in source document/i)).toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
         name: /borrower income analysis is incomplete/i,
@@ -41,9 +39,7 @@ describe('IssueCard', () => {
 
     expect(screen.getByText('Minor')).toBeInTheDocument()
     expect(screen.getByText('Non-blocking')).toBeInTheDocument()
-    expect(
-      screen.getByText(/this issue does not block submission/i),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/does not block submission/i)).toBeInTheDocument()
   })
 
   it('renders a safe label when issue page is unavailable', () => {
@@ -108,7 +104,7 @@ describe('IssueCard', () => {
       <IssueCard
         issue={createIssue({
           description:
-            'The property address on the appraisal cover page does not match the address in the review packet. Confirm the source document reflects the same collateral address across every required section before uploading a corrected version for review.',
+            'The property address on the appraisal cover page does not match the address in the review packet. Confirm the source document reflects the same collateral address across every required section.',
         })}
       />,
     )

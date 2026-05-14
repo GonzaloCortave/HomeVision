@@ -327,7 +327,9 @@ describe('ReviewPageContainer', () => {
     rerender(<ReviewPageContainer loadReviewData={secondLoader} />)
 
     expect(
-      await screen.findByRole('heading', { name: /submission blocked/i }),
+      await screen.findByRole('heading', {
+        name: /fix blockers before submitting/i,
+      }),
     ).toBeInTheDocument()
     expect(
       screen.queryByRole('heading', { name: /review submitted/i }),

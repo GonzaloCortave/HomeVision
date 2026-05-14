@@ -1,4 +1,4 @@
-export type ButtonStyleVariant = 'primary' | 'secondary'
+export type ButtonStyleVariant = 'accent' | 'primary' | 'secondary'
 export type ButtonStyleSize = 'sm' | 'md' | 'lg'
 
 export type ButtonClassNameOptions = {
@@ -11,6 +11,7 @@ const buttonBaseClassNames =
   'inline-flex items-center justify-center gap-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:cursor-not-allowed disabled:opacity-50'
 
 const buttonVariantClassNames: Record<ButtonStyleVariant, string> = {
+  accent: 'bg-sky-700 text-white hover:bg-sky-800',
   primary: 'bg-slate-950 text-white hover:bg-slate-800',
   secondary:
     'border border-slate-300 bg-white text-sky-700 shadow-sm hover:border-sky-300 hover:text-sky-800',

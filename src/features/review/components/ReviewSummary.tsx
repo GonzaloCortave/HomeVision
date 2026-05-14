@@ -104,7 +104,7 @@ const getSummaryContent = (
       return {
         accentClassName: 'border-red-200 ring-1 ring-red-100',
         description:
-          'Fix critical and major issues in the source document, then upload a corrected version for review.',
+          'Critical and major issues must be resolved before this review can be submitted. Minor issues can remain.',
         eyebrow: `${submissionState.issueCounts.blocking} blocking ${
           submissionState.issueCounts.blocking === 1 ? 'issue' : 'issues'
         }`,
@@ -116,7 +116,7 @@ const getSummaryContent = (
       return {
         accentClassName: 'border-red-200 ring-1 ring-red-100',
         description:
-          'The uploaded document is unavailable. Upload a corrected document before submitting this review.',
+          'The uploaded document is unavailable. A document is required before this review can be submitted.',
         eyebrow:
           submissionState.issueCounts.blocking > 0
             ? `Document required; ${submissionState.issueCounts.blocking} blocking ${

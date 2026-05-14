@@ -13,6 +13,8 @@ export type IssuePanelProps = {
   issues: readonly ReviewIssue[]
   onSubmitReview: () => void
   submissionState: SubmissionState
+  uploadPageUrl: string
+  uploadVersion: number
 }
 
 const IssuePanel = ({
@@ -21,6 +23,8 @@ const IssuePanel = ({
   issues,
   onSubmitReview,
   submissionState,
+  uploadPageUrl,
+  uploadVersion,
 }: IssuePanelProps) => {
   const issueCountLabel = formatIssueCount(issues.length)
   const issueSourceCopy = hasDocument
@@ -47,11 +51,6 @@ const IssuePanel = ({
         </p>
       </div>
       <ReviewSummary submissionState={submissionState} />
-      <ReviewSubmissionPanel
-        hasSubmittedReview={hasSubmittedReview}
-        onSubmitReview={onSubmitReview}
-        submissionState={submissionState}
-      />
       {issues.length > 0 ? (
         <ButtonLink
           className="w-full"
@@ -63,6 +62,13 @@ const IssuePanel = ({
           <ChevronRight aria-hidden="true" className="size-4" strokeWidth={2} />
         </ButtonLink>
       ) : null}
+      <ReviewSubmissionPanel
+        hasSubmittedReview={hasSubmittedReview}
+        onSubmitReview={onSubmitReview}
+        submissionState={submissionState}
+        uploadPageUrl={uploadPageUrl}
+        uploadVersion={uploadVersion}
+      />
     </aside>
   )
 }
