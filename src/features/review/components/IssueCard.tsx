@@ -1,4 +1,5 @@
 import { useId, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import Button from '../../../shared/components/ui/Button'
 import { isBlockingIssue } from '../domain/reviewSelectors'
 import type { ReviewIssue } from '../domain/reviewTypes'
@@ -22,6 +23,7 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
   const isDescriptionCollapsed = canExpandDescription && !isExpanded
   const pageLabel =
     issue.page === null ? 'Page unavailable' : `Page ${issue.page}`
+  const ExpandIcon = isExpanded ? ChevronUp : ChevronDown
 
   return (
     <li className="flex min-h-60 flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -72,6 +74,11 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
               variant="text"
             >
               {isExpanded ? 'Show less' : 'Show more'}
+              <ExpandIcon
+                aria-hidden="true"
+                className="size-3.5"
+                strokeWidth={2}
+              />
             </Button>
           ) : null}
         </div>

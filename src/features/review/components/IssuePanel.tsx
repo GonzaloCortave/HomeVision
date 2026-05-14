@@ -1,3 +1,4 @@
+import { ChevronRight, ListChecks } from 'lucide-react'
 import ButtonLink from '../../../shared/components/ui/ButtonLink'
 import type { SubmissionState } from '../domain/reviewSelectors'
 import type { ReviewIssue } from '../domain/reviewTypes'
@@ -57,7 +58,9 @@ const IssuePanel = ({
           href={`#${REVIEW_SECTION_IDS.issues}`}
           size="lg"
         >
+          <ListChecks aria-hidden="true" className="size-4" strokeWidth={2} />
           View all {issues.length} issues
+          <ChevronRight aria-hidden="true" className="size-4" strokeWidth={2} />
         </ButtonLink>
       ) : null}
     </aside>

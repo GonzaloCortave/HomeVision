@@ -1,3 +1,10 @@
+import {
+  CircleAlert,
+  CircleDashed,
+  FileWarning,
+  ShieldCheck,
+  type LucideIcon,
+} from 'lucide-react'
 import type { IssueCounts, SubmissionState } from '../domain/reviewSelectors'
 import { formatReviewStatus } from '../utils/reviewFormatters'
 
@@ -8,6 +15,8 @@ export type ReviewSummaryProps = {
 type SummaryContent = {
   accentClassName: string
   eyebrow: string
+  Icon: LucideIcon
+  iconClassName: string
   title: string
   description: string
 }
@@ -43,15 +52,24 @@ const ReviewSummary = ({ submissionState }: ReviewSummaryProps) => {
       aria-labelledby="review-summary-heading"
       className={`rounded-lg border bg-white p-4 shadow-sm ${content.accentClassName}`}
     >
-      <p className="text-xs font-semibold uppercase text-slate-500">
-        Review status
-      </p>
-      <h3
-        className="mt-1 text-base font-semibold text-slate-950"
-        id="review-summary-heading"
-      >
-        {content.title}
-      </h3>
+      <div className="flex items-start gap-3">
+        <span
+          className={`flex size-8 shrink-0 items-center justify-center rounded-full border bg-white ${content.iconClassName}`}
+        >
+          <content.Icon aria-hidden="true" className="size-4" strokeWidth={2} />
+        </span>
+        <div>
+          <p className="text-xs font-semibold uppercase text-slate-500">
+            Review status
+          </p>
+          <h3
+            className="mt-1 text-base font-semibold text-slate-950"
+            id="review-summary-heading"
+          >
+            {content.title}
+          </h3>
+        </div>
+      </div>
       <p className="mt-2 text-sm leading-6 text-slate-600">
         {content.description}
       </p>
@@ -90,6 +108,8 @@ const getSummaryContent = (
         eyebrow: `${submissionState.issueCounts.blocking} blocking ${
           submissionState.issueCounts.blocking === 1 ? 'issue' : 'issues'
         }`,
+        Icon: CircleAlert,
+        iconClassName: 'border-red-200 text-red-700',
         title: 'Blocked by critical or major issues',
       }
     case 'missing_document':
@@ -103,6 +123,8 @@ const getSummaryContent = (
                 submissionState.issueCounts.blocking === 1 ? 'issue' : 'issues'
               }`
             : 'Document required',
+        Icon: FileWarning,
+        iconClassName: 'border-red-200 text-red-700',
         title: 'Document required',
       }
     case 'not_reviewable':
@@ -112,6 +134,8 @@ const getSummaryContent = (
           submissionState.reviewStatus,
         )}. Reviews can only be submitted while they are on review.`,
         eyebrow: 'Not submittable',
+        Icon: CircleDashed,
+        iconClassName: 'border-slate-200 text-slate-600',
         title: 'Not ready for submission',
       }
     case 'ready':
@@ -121,6 +145,8 @@ const getSummaryContent = (
           ? 'Minor issues do not block submission. Review them if needed, or submit the review.'
           : 'Ready to submit. No critical or major issues remain.',
         eyebrow: 'Ready',
+        Icon: ShieldCheck,
+        iconClassName: 'border-emerald-200 text-emerald-700',
         title: 'No blockers remain',
       }
   }

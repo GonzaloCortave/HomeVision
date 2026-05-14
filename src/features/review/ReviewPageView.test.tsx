@@ -98,11 +98,12 @@ describe('ReviewPageView', () => {
     expect(
       screen.getByRole('heading', { level: 2, name: /document/i }),
     ).toBeInTheDocument()
+    expect(screen.getByTitle('123-maple-appraisal-review.pdf')).toHaveAttribute(
+      'src',
+      '/local-sample-uploaded-document.pdf',
+    )
     expect(
-      screen.getByTitle(/123-maple-appraisal-review\.pdf pdf/i),
-    ).toHaveAttribute('src', '/local-sample-uploaded-document.pdf')
-    expect(
-      screen.getByRole('link', { name: /open document in new tab/i }),
+      screen.getByRole('link', { name: /open searchable pdf in new tab/i }),
     ).toHaveAttribute('href', '/local-sample-uploaded-document.pdf')
     const documentPanel = container.querySelector(
       '#document-panel',
@@ -186,7 +187,7 @@ describe('ReviewPageView', () => {
     ).toBeInTheDocument()
     expect(screen.getAllByText(/upload a corrected document/i)).toHaveLength(2)
     expect(
-      screen.queryByRole('link', { name: /open document in new tab/i }),
+      screen.queryByRole('link', { name: /open searchable pdf in new tab/i }),
     ).not.toBeInTheDocument()
     expect(screen.queryByTitle(/pdf/i)).not.toBeInTheDocument()
   })
@@ -248,7 +249,7 @@ describe('ReviewPageView', () => {
       screen.getByRole('button', { name: /submit review/i }),
     ).toBeDisabled()
     expect(
-      screen.queryByRole('link', { name: /open document in new tab/i }),
+      screen.queryByRole('link', { name: /open searchable pdf in new tab/i }),
     ).not.toBeInTheDocument()
     expect(screen.queryByTitle(/pdf/i)).not.toBeInTheDocument()
   })

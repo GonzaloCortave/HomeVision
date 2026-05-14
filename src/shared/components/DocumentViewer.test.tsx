@@ -20,7 +20,7 @@ describe('DocumentViewer', () => {
     render(<DocumentViewer documentUrl="/local-sample-uploaded-document.pdf" />)
 
     const link = screen.getByRole('link', {
-      name: /open document in new tab/i,
+      name: /open searchable pdf in new tab/i,
     })
 
     expect(link).toBeVisible()
@@ -67,7 +67,7 @@ describe('DocumentViewer', () => {
       screen.getByText(/cannot be previewed because its url is missing/i),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('link', { name: /open document in new tab/i }),
+      screen.queryByRole('link', { name: /open searchable pdf in new tab/i }),
     ).not.toBeInTheDocument()
   })
 

@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react'
 import TextLink from './ui/TextLink'
 
 export type DocumentViewerProps = {
@@ -51,12 +52,14 @@ const DocumentViewer = ({
           {title}
         </TitleHeading>
         <TextLink
+          aria-label={`Open searchable PDF in new tab: ${title}`}
           className="text-sm"
           href={normalizedUrl}
           rel="noreferrer"
           target="_blank"
         >
-          Open document in new tab
+          Open searchable PDF in new tab
+          <ExternalLink aria-hidden="true" className="size-4" strokeWidth={2} />
         </TextLink>
       </div>
       <iframe
