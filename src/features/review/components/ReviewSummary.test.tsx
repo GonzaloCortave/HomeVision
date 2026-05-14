@@ -9,7 +9,7 @@ afterEach(() => {
 })
 
 describe('ReviewSummary', () => {
-  it('shows severity counts and external-fix copy for blocked reviews', () => {
+  it('shows severity counts and diagnostic copy for blocked reviews', () => {
     renderReviewSummary('blocked')
 
     expect(
@@ -20,9 +20,10 @@ describe('ReviewSummary', () => {
     expect(screen.getByText(/4 blocking issues/i)).toBeInTheDocument()
     expect(
       screen.getByText(
-        /fix critical and major issues in the source document, then upload a corrected version/i,
+        /critical and major issues must be resolved before this review can be submitted/i,
       ),
     ).toBeInTheDocument()
+    expect(screen.queryByText(/upload|version/i)).not.toBeInTheDocument()
     expectSeverityCount('Critical', '2')
     expectSeverityCount('Major', '2')
     expectSeverityCount('Minor', '3')
@@ -77,6 +78,11 @@ describe('ReviewSummary', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByText(/uploaded document is unavailable/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        /a document is required before this review can be submitted/i,
+      ),
     ).toBeInTheDocument()
     expectSeverityCount('Critical', '0')
     expectSeverityCount('Major', '0')

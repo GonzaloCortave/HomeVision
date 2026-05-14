@@ -49,8 +49,8 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
       </TitleHeading>
       <p className="mt-2 text-xs font-medium leading-5 text-slate-500">
         {blocksSubmission
-          ? 'Fix this in the source document before submitting.'
-          : 'This issue does not block submission.'}
+          ? 'Fix in source document.'
+          : 'Does not block submission.'}
       </p>
       {issue.description ? (
         <div className="mt-1 flex flex-1 flex-col">

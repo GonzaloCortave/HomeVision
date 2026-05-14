@@ -30,15 +30,15 @@ All five commands pass cleanly at time of submission.
 
 The primary user is a collateral reviewer who must inspect a PDF, understand AI-detected issues, and submit only when blocking issues are resolved.
 
-| Area               | Description                                                                                                                                                                                                            |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Review header**  | File name, status badge, version, upload timestamp (`<time>` with `dateTime`), reviewer name and email.                                                                                                                |
-| **PDF viewer**     | Native `<iframe>` with accessible title. Supports Chrome Cmd+F / Ctrl+F search from the Review Page, plus an "Open searchable PDF in new tab" link for isolated PDF search when exact PDF-only results matter.         |
-| **Review summary** | Severity counts (critical / major / minor), blocked / ready / missing-document / non-reviewable state with operational copy explaining what to fix and where.                                                          |
-| **Issue list**     | Issues grouped by severity in a three-column grid, sorted by page within each group. Each card shows severity badge, page number, title, expand/collapse for long descriptions, and blocking impact text.              |
-| **Submit panel**   | Disabled when blocked or non-reviewable. Enabled only when `on_review` + zero blocking issues + document URL present. Records local success state on click. `aria-describedby` connects the helper text to the button. |
-| **Mobile layout**  | Stacked layout with Document / Issues anchor links visible in the first viewport for quick navigation.                                                                                                                 |
-| **Edge states**    | Loading with status announcement, error with retry, missing PDF, no issues, minor-only, and local submitted confirmation — all covered by component tests.                                                             |
+| Area               | Description                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Review header**  | File name, status badge, version, upload timestamp (`<time>` with `dateTime`), reviewer name and email.                                                                                                                                                                                                                                                                                                   |
+| **PDF viewer**     | Native `<iframe>` with accessible title. Supports Chrome Cmd+F / Ctrl+F search from the Review Page, plus an "Open searchable PDF in new tab" link for isolated PDF search when exact PDF-only results matter.                                                                                                                                                                                            |
+| **Review summary** | Severity counts (critical / major / minor), blocked / ready / missing-document / non-reviewable state with operational copy explaining what to fix and where.                                                                                                                                                                                                                                             |
+| **Issue list**     | Issues grouped by severity in a three-column grid, sorted by page within each group. Each card shows severity badge, page number, title, expand/collapse for long descriptions, and blocking impact text.                                                                                                                                                                                                 |
+| **Submit panel**   | Always shows both actions: submit the current review when eligible, or go to Upload Page for `version + 1`. Submit is enabled only when `on_review` + zero blocking issues + document URL present; Upload remains available so reviewers can replace the document even when the current review is ready. Records local success state on submit. `aria-describedby` connects helper text to both controls. |
+| **Mobile layout**  | Stacked layout with Document / Issues anchor links visible in the first viewport for quick navigation.                                                                                                                                                                                                                                                                                                    |
+| **Edge states**    | Loading with status announcement, error with retry, missing PDF, no issues, minor-only, and local submitted confirmation — all covered by component tests.                                                                                                                                                                                                                                                |
 
 ## Assumptions And Missing Assets
 
@@ -68,8 +68,9 @@ All blocking logic lives in pure functions under `src/features/review/domain/rev
 2. **Non-blocking** — `minor` issues are visible but never prevent submission.
 3. **Submit eligibility** — `status === 'on_review'` AND zero blocking issues AND document URL present.
 4. **Non-reviewable statuses** — `created`, `processing`, and `submitted` display the review but disable submission with clear copy explaining why.
-5. **No in-app resolve** — Blocking issues are fixed by correcting the source document and uploading a new version. The app does not invent a resolve action because that workflow is not supported by the product contract.
-6. **Submission state machine** — `getSubmissionState()` returns a discriminated union (`not_reviewable | blocked | missing_document | ready`) so components pattern-match on state rather than recomputing eligibility.
+5. **No in-app resolve** — Blocking issues are fixed by correcting the source document outside this app, then uploading the corrected document. The app does not invent a resolve action because that workflow is not supported by the product contract.
+6. **Upload handoff** — The submit panel always links to `/upload` with current-review context and `nextVersion = review.version + 1`. After the user uploads the corrected, replacement, or missing document, it is processed before entering review; this page only redirects to upload.
+7. **Submission state machine** — `getSubmissionState()` returns a discriminated union (`not_reviewable | blocked | missing_document | ready`) so components pattern-match on state rather than recomputing eligibility.
 
 ## Architecture
 
@@ -152,7 +153,7 @@ Manual QA was performed in Chrome on May 13, 2026 against the local Vite app. Th
 ## Known Limitations
 
 - **No backend** — Submit records local state only; no API call.
-- **Single page** — No upload, processing, or submitted pages.
+- **Single page** — No upload, processing, or submitted pages are implemented; the submit panel redirects to the Upload Page entry point.
 - **No historical versions** — Only the latest uploaded document version is shown.
 - **No auth** — No authentication, authorization, or user management.
 - **No PDF annotations** — No page linking, annotation editing, or extracted-text search UI.
@@ -168,7 +169,7 @@ This is a take-home implementation scoped to the challenge requirements. Before 
 - **E2E tests** — Playwright smoke tests for blocked/ready submit flows and PDF rendering.
 - **Accessibility audit** — Automated axe-core in CI plus manual screen reader verification.
 - **Observability** — Analytics for blocked submission attempts, successful submissions, and issue filter usage.
-- **Upload workflow** — Support for re-upload, processing state transitions, and version history.
+- **Upload workflow** — Implement the Upload Page target, actual re-upload mutation, processing state transitions, and version history.
 
 ## AI Disclosure
 

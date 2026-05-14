@@ -25,6 +25,8 @@ const ReviewPageView = ({
   submissionState,
 }: ReviewPageViewProps) => {
   const hasDocument = hasReviewDocument(review)
+  const uploadVersion = review.version + 1
+  const uploadPageUrl = getUploadPageUrl(review, uploadVersion)
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
@@ -42,12 +44,24 @@ const ReviewPageView = ({
             issues={issues}
             onSubmitReview={onSubmitReview}
             submissionState={submissionState}
+            uploadPageUrl={uploadPageUrl}
+            uploadVersion={uploadVersion}
           />
         </div>
         <ReviewIssuesSection hasDocument={hasDocument} issues={issues} />
       </div>
     </main>
   )
+}
+
+const getUploadPageUrl = (review: Review, uploadVersion: number): string => {
+  const uploadSearchParams = new URLSearchParams({
+    currentVersion: String(review.version),
+    documentName: review.name,
+    nextVersion: String(uploadVersion),
+  })
+
+  return `/upload?${uploadSearchParams.toString()}`
 }
 
 export default ReviewPageView

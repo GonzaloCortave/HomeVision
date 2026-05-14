@@ -43,7 +43,7 @@ const criticalIssue: ApiReviewIssue = {
   page: 2,
   title: 'Borrower income analysis is incomplete',
   description:
-    'The income analysis section is missing required support. Correct the source document and upload a new version before submission.',
+    'The income analysis section is missing required support. Correct the source document so the reviewer can verify the borrower income calculation.',
 }
 
 const criticalCollateralIssue: ApiReviewIssue = {
@@ -52,7 +52,7 @@ const criticalCollateralIssue: ApiReviewIssue = {
   page: 1,
   title: 'Collateral address does not match the packet',
   description:
-    'The property address on the appraisal cover page does not match the address in the review packet. Confirm the source document reflects the same collateral address across every required section before uploading a corrected version for review.',
+    'The property address on the appraisal cover page does not match the address in the review packet. Confirm the source document reflects the same collateral address across every required section.',
 }
 
 const majorIssue: ApiReviewIssue = {
@@ -61,7 +61,7 @@ const majorIssue: ApiReviewIssue = {
   page: 3,
   title: 'Flood certification is missing',
   description:
-    'The packet does not include the flood certification needed for collateral review. This blocks submission until the uploaded document is replaced.',
+    'The packet does not include the flood certification needed for collateral review.',
 }
 
 const majorSignatureIssue: ApiReviewIssue = {
@@ -70,7 +70,7 @@ const majorSignatureIssue: ApiReviewIssue = {
   page: 2,
   title: 'Reviewer signature date is missing',
   description:
-    'The certification page includes the reviewer signature block, but the signature date is blank. Add the completed date to the source document so the review packet can be submitted.',
+    'The certification page includes the reviewer signature block, but the signature date is blank. Add the completed date to the source document.',
 }
 
 const minorIssue: ApiReviewIssue = {
@@ -78,8 +78,7 @@ const minorIssue: ApiReviewIssue = {
   severity: 'minor',
   page: 3,
   title: 'Heading capitalization is inconsistent',
-  description:
-    'One section heading uses inconsistent capitalization. This does not block submission.',
+  description: 'One section heading uses inconsistent capitalization.',
 }
 
 const minorFormattingIssue: ApiReviewIssue = {
@@ -88,7 +87,7 @@ const minorFormattingIssue: ApiReviewIssue = {
   page: 1,
   title: 'Supporting note wraps awkwardly',
   description:
-    'A supporting note wraps onto a second line in the generated packet. This is cosmetic and can be ignored if the blocking issues are corrected.',
+    'A supporting note wraps onto a second line in the generated packet. This is cosmetic and can be ignored.',
 }
 
 const minorPunctuationIssue: ApiReviewIssue = {
@@ -97,7 +96,7 @@ const minorPunctuationIssue: ApiReviewIssue = {
   page: 3,
   title: 'Trailing punctuation is inconsistent',
   description:
-    'One bullet in the reviewer comments section ends without punctuation while neighboring bullets use periods. This does not block submission.',
+    'One bullet in the reviewer comments section ends without punctuation while neighboring bullets use periods.',
 }
 
 export const blockedReviewMock: ApiReview = {

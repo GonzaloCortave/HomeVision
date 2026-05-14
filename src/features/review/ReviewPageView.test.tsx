@@ -51,6 +51,15 @@ describe('ReviewPageView', () => {
       screen.getByRole('link', { name: /view all 7 issues/i }),
     ).toHaveAttribute('href', '#issues-panel')
     expect(
+      screen
+        .getByRole('link', { name: /view all 7 issues/i })
+        .compareDocumentPosition(
+          screen.getByRole('heading', {
+            name: /fix blockers before submitting/i,
+          }),
+        ),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(
       screen.getByRole('heading', { level: 3, name: /^critical$/i }),
     ).toBeInTheDocument()
     expect(
@@ -132,7 +141,9 @@ describe('ReviewPageView', () => {
     const issuesSection = document.querySelector('#issues-panel') as HTMLElement
 
     expect(
-      within(reviewRail).getByRole('heading', { name: /submission blocked/i }),
+      within(reviewRail).getByRole('heading', {
+        name: /fix blockers before submitting/i,
+      }),
     ).toBeInTheDocument()
     expect(
       within(reviewRail).queryByText(/borrower income analysis is incomplete/i),
@@ -170,7 +181,7 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /document unavailable/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/an uploaded pdf is required for this review/i),
+      screen.getByText(/preview unavailable until a document is uploaded/i),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { level: 2, name: /issues/i }),
@@ -183,9 +194,19 @@ describe('ReviewPageView', () => {
       screen.getByRole('button', { name: /submit review/i }),
     ).toBeDisabled()
     expect(
-      screen.getByRole('heading', { name: /document required/i }),
+      screen.getAllByRole('heading', { name: /document required/i })[0],
     ).toBeInTheDocument()
-    expect(screen.getAllByText(/upload a corrected document/i)).toHaveLength(2)
+    expect(
+      screen.getByText(/upload the required document as version 5/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', {
+        name: /upload version 5/i,
+      }),
+    ).toHaveAttribute(
+      'href',
+      '/upload?currentVersion=4&documentName=123-maple-missing-document-review.pdf&nextVersion=5',
+    )
     expect(
       screen.queryByRole('link', { name: /open searchable pdf in new tab/i }),
     ).not.toBeInTheDocument()
@@ -243,7 +264,7 @@ describe('ReviewPageView', () => {
       ),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: /document required/i }),
+      screen.getAllByRole('heading', { name: /document required/i })[0],
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /submit review/i }),
@@ -260,10 +281,10 @@ describe('ReviewPageView', () => {
     renderReviewPageView(review)
 
     expect(
-      screen.getByRole('heading', { name: /document required/i }),
+      screen.getAllByRole('heading', { name: /document required/i })[0],
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: /submission blocked/i }),
+      screen.getAllByRole('heading', { name: /document required/i })[1],
     ).toBeInTheDocument()
     expect(
       screen.getByText(/uploaded document is unavailable/i),
@@ -286,16 +307,27 @@ describe('ReviewPageView', () => {
     renderReviewPageView(review)
 
     expect(
-      screen.getByRole('heading', { name: /submission blocked/i }),
+      screen.getByRole('heading', { name: /fix blockers before submitting/i }),
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        /4 blocking issues must be fixed in the source document/i,
+        /critical and major issues must be resolved before this review can be submitted/i,
       ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/resolve blockers in the source document/i),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /submit review/i }),
     ).toBeDisabled()
+    expect(
+      screen.getByRole('link', {
+        name: /upload version 3/i,
+      }),
+    ).toHaveAttribute(
+      'href',
+      '/upload?currentVersion=2&documentName=123-maple-appraisal-review.pdf&nextVersion=3',
+    )
   })
 
   it('enables submission when only minor issues remain', () => {
@@ -323,10 +355,12 @@ describe('ReviewPageView', () => {
     expect(screen.getByText(/no critical issues/i)).toBeInTheDocument()
     expect(screen.getByText(/no major issues/i)).toBeInTheDocument()
     expect(
-      screen.queryByRole('heading', { name: /submission blocked/i }),
+      screen.queryByRole('heading', {
+        name: /fix blockers before submitting/i,
+      }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByText(/blocking issues must be fixed/i),
+      screen.queryByText(/critical or major issues block submission/i),
     ).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -349,9 +383,9 @@ describe('ReviewPageView', () => {
     ).toBeInTheDocument()
     expect(
       screen.getAllByText(
-        /reviews can only be submitted while they are on review/i,
+        /submit is available only while a review is on review/i,
       ),
-    ).toHaveLength(2)
+    ).toHaveLength(1)
     expect(
       screen.getByText(/no issues found on the latest uploaded document/i),
     ).toBeInTheDocument()
@@ -380,8 +414,8 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /no blockers remain/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getAllByText(/no critical or major issues remain/i),
-    ).toHaveLength(2)
+      screen.getByText(/submit this version, or upload version 5/i),
+    ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /view all/i })).toBeNull()
 
     const submitButton = screen.getByRole('button', {

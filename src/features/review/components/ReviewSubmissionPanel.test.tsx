@@ -11,21 +11,37 @@ afterEach(() => {
 })
 
 describe('ReviewSubmissionPanel', () => {
-  it('disables submit and exposes helper text when blocking issues exist', () => {
+  it('keeps submit visible and sends blocked reviews to upload', () => {
     renderReviewSubmissionPanel(createReviewMock('blocked'))
 
-    const submitButton = screen.getByRole('button', { name: /submit review/i })
-    const helperText = screen.getByText(
-      /4 blocking issues must be fixed in the source document/i,
+    const helperText = screen.getByText(/resolve blockers/i)
+    const submitButton = screen.getByRole('button', {
+      name: /submit review/i,
+    })
+    const uploadLink = screen.getByRole('link', {
+      name: /upload version 3/i,
+    })
+    const panel = screen.getByRole('region', {
+      name: /fix blockers before submitting/i,
+    })
+
+    expect(panel).toHaveAccessibleDescription(
+      /resolve blockers in the source document/i,
     )
 
     expect(
-      screen.getByRole('heading', { name: /submission blocked/i }),
+      screen.getByRole('heading', { name: /fix blockers before submitting/i }),
     ).toBeInTheDocument()
     expect(submitButton).toBeDisabled()
-    expect(submitButton).toHaveAttribute('aria-describedby', helperText.id)
-    expect(submitButton).toHaveAccessibleDescription(
-      /4 blocking issues must be fixed in the source document/i,
+    expect(submitButton).toHaveAccessibleDescription(/upload version 3/i)
+    expect(uploadLink).toHaveAttribute(
+      'aria-describedby',
+      expect.stringContaining(helperText.id),
+    )
+    expect(uploadLink).toHaveAccessibleDescription(/upload version 3/i)
+    expect(uploadLink).toHaveAttribute(
+      'href',
+      '/upload?currentVersion=2&documentName=123-maple-appraisal-review.pdf&nextVersion=3',
     )
   })
 
@@ -48,23 +64,37 @@ describe('ReviewSubmissionPanel', () => {
     ).toBeInTheDocument()
     expect(submitButton).toBeDisabled()
     expect(submitButton).toHaveAccessibleDescription(
-      /reviews can only be submitted while they are on review/i,
+      /submit is available only while a review is on review/i,
     )
+    expect(
+      screen.getByRole('link', { name: /upload version/i }),
+    ).toBeInTheDocument()
   })
 
-  it('disables submit when the uploaded document is missing', () => {
+  it('keeps submit visible and sends missing-document reviews to upload', () => {
     renderReviewSubmissionPanel(createReviewMock('missingDocument'))
 
-    const submitButton = screen.getByRole('button', {
-      name: /submit review/i,
-    })
-
     expect(
-      screen.getByRole('heading', { name: /submission blocked/i }),
+      screen.getByRole('heading', { name: /document required/i }),
     ).toBeInTheDocument()
-    expect(submitButton).toBeDisabled()
-    expect(submitButton).toHaveAccessibleDescription(
-      /upload a corrected document before submitting this review/i,
+    expect(
+      screen.getByText(/upload the required document as version 5/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /submit review/i }),
+    ).toBeDisabled()
+    expect(
+      screen.getByRole('link', {
+        name: /upload version 5/i,
+      }),
+    ).toHaveAccessibleDescription(/required document as version 5/i)
+    expect(
+      screen.getByRole('link', {
+        name: /upload version 5/i,
+      }),
+    ).toHaveAttribute(
+      'href',
+      '/upload?currentVersion=4&documentName=123-maple-missing-document-review.pdf&nextVersion=5',
     )
   })
 
@@ -98,7 +128,7 @@ describe('ReviewSubmissionPanel', () => {
 
     expect(submitButton).toBeEnabled()
     expect(submitButton).toHaveAccessibleDescription(
-      /no critical or major issues remain/i,
+      /submit this version, or upload version 5/i,
     )
 
     fireEvent.click(submitButton)
@@ -118,8 +148,11 @@ describe('ReviewSubmissionPanel', () => {
     ).toBeInTheDocument()
     expect(submittedButton).toBeDisabled()
     expect(submittedButton).toHaveAccessibleDescription(
-      /submitted locally for this review session/i,
+      /submitted for this review session/i,
     )
+    expect(
+      screen.getByRole('link', { name: /upload version 5/i }),
+    ).toBeInTheDocument()
   })
 })
 
@@ -135,6 +168,8 @@ const renderReviewSubmissionPanel = (
       hasSubmittedReview={options.hasSubmittedReview ?? false}
       onSubmitReview={options.onSubmitReview ?? vi.fn()}
       submissionState={getSubmissionState(review)}
+      uploadPageUrl={`/upload?currentVersion=${review.version}&documentName=${review.name}&nextVersion=${review.version + 1}`}
+      uploadVersion={review.version + 1}
     />,
   )
 }
