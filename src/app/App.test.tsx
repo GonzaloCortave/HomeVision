@@ -13,7 +13,7 @@ describe('App', () => {
       }),
     ).toBeInTheDocument()
     expect(
-      screen.getByTitle(/123-maple-appraisal-review\.pdf pdf/i),
+      screen.getByTitle('123-maple-appraisal-review.pdf'),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { level: 2, name: /issues/i }),

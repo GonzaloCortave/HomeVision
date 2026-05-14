@@ -26,16 +26,6 @@ npm run build
 
 All five commands pass cleanly at time of submission.
 
-## Screenshot
-
-> **Desktop — blocked state with 7 issues (2 critical, 2 major, 3 minor):**
-
-![Review Page — blocked state](docs/screenshots/review-blocked-desktop.png)
-
-> **Desktop — ready state (minor issues only):**
-
-![Review Page — ready state](docs/screenshots/review-ready-desktop.png)
-
 ## What Was Built
 
 The primary user is a collateral reviewer who must inspect a PDF, understand AI-detected issues, and submit only when blocking issues are resolved.
@@ -43,7 +33,7 @@ The primary user is a collateral reviewer who must inspect a PDF, understand AI-
 | Area               | Description                                                                                                                                                                                                            |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Review header**  | File name, status badge, version, upload timestamp (`<time>` with `dateTime`), reviewer name and email.                                                                                                                |
-| **PDF viewer**     | Native `<iframe>` with accessible title. "Open document in new tab" fallback link. Supports Cmd+F / Ctrl+F in-browser search.                                                                                          |
+| **PDF viewer**     | Native `<iframe>` with accessible title. Supports Chrome Cmd+F / Ctrl+F search from the Review Page, plus an "Open searchable PDF in new tab" link for isolated PDF search when exact PDF-only results matter.         |
 | **Review summary** | Severity counts (critical / major / minor), blocked / ready / missing-document / non-reviewable state with operational copy explaining what to fix and where.                                                          |
 | **Issue list**     | Issues grouped by severity in a three-column grid, sorted by page within each group. Each card shows severity badge, page number, title, expand/collapse for long descriptions, and blocking impact text.              |
 | **Submit panel**   | Disabled when blocked or non-reviewable. Enabled only when `on_review` + zero blocking issues + document URL present. Records local success state on click. `aria-describedby` connects the helper text to the button. |
@@ -83,7 +73,7 @@ All blocking logic lives in pure functions under `src/features/review/domain/rev
 
 ## Architecture
 
-30 source files, 14 test files (2,074 lines of tests).
+29 source files, 14 test files (2,075 lines of tests).
 
 ```
 src/
@@ -119,7 +109,9 @@ src/
 The PDF renders in a native browser `<iframe>`. This was chosen because:
 
 - The challenge requires **Cmd+F / Ctrl+F search** across the PDF.
-- Native PDF viewers in Chrome, Edge, and Firefox already provide full-document search without extra dependencies.
+- Native PDF viewers in Chrome, Edge, and Firefox already provide full-document search without PDF.js.
+- The embedded viewer supports the common reviewer workflow: click the PDF preview, press Cmd+F / Ctrl+F, and search across the document from the Review Page.
+- The direct PDF tab uses the same native browser viewer but isolates the find results to the PDF when the same term also appears in surrounding issue text.
 - PDF.js would add ~400 kB of bundle size, worker setup, text-layer accessibility work, and custom search wiring — all for a feature the browser already provides.
 
 **If native PDF search fails** in the target reviewer environment, the next step would be PDF.js with text-layer rendering. That tradeoff was considered and documented, not ignored.
@@ -128,14 +120,17 @@ The PDF renders in a native browser `<iframe>`. This was chosen because:
 
 1. Open the app in Chrome (`npm run dev`).
 2. Confirm the embedded PDF renders in the left pane.
-3. Click inside the PDF and use **Cmd+F** / **Ctrl+F**.
-4. Search for `HomeVision`, `critical issue`, or `flood certification` — confirm matches highlight.
-5. Click "Open document in new tab" — confirm search works there too.
-6. Resize the browser to mobile width — confirm the Document anchor link scrolls to the PDF.
+3. Click inside the embedded PDF and use **Cmd+F** / **Ctrl+F**.
+4. Search for `Search terms for QA` — confirm Chrome searches the embedded PDF from the Review Page and jumps to the match on page 3 after pressing Enter.
+5. Search for `flood certification` in the embedded view — confirm Chrome finds the PDF text. If Chrome also finds the same phrase in issue cards, use the PDF-only tab for isolated PDF results.
+6. Click "Open searchable PDF in new tab" and search `flood certification` — confirm the result set is PDF-only.
+7. Resize the browser to mobile width — confirm the Document anchor link scrolls to the PDF.
+
+Manual QA was performed in Chrome on May 13, 2026 against the local Vite app. The embedded PDF rendered and Cmd+F found `Search terms for QA` inside the PDF from the Review Page after pressing Enter. For terms duplicated in the surrounding issue cards, Chrome's global find may include both PDF and page-text matches; the direct PDF tab is provided as the precise PDF-only search path. The new-tab PDF view found `flood certification` as `Result 1 of 2`. Keyboard navigation and responsive checks were also run at desktop, tablet, and mobile widths with no material blockers found.
 
 ## Testing
 
-**91 tests** across 14 suites, **2,074 lines** of test code. All behavioral, no snapshots, no Tailwind class assertions.
+**91 tests** across 14 suites, **2,075 lines** of test code. All behavioral, no snapshots, no Tailwind class assertions.
 
 | Suite                  | Tests | What it covers                                                                                                                                                    |
 | ---------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -189,8 +184,9 @@ AI tools (Windsurf with Claude) were used to accelerate implementation scaffoldi
 | TypeScript            | 6.0 (strict) | Type safety, zero `any`         |
 | Vite                  | 8.0          | Dev server and production build |
 | Tailwind CSS          | 4.1          | Utility-first styling           |
+| lucide-react          | 1.14         | Focused SVG icon set            |
 | Vitest                | 4.1          | Test runner                     |
 | React Testing Library | 16.3         | Component testing by behavior   |
 | jsdom                 | 29.1         | Test DOM environment            |
 
-**Zero runtime dependencies** beyond React and ReactDOM. All other packages are devDependencies.
+Runtime dependencies are limited to React, ReactDOM, and lucide-react for accessible SVG icons. All other packages are devDependencies.

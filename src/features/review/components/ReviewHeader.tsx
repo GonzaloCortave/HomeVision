@@ -1,3 +1,4 @@
+import { CalendarDays, Clock3, FileText, UserRound } from 'lucide-react'
 import type { Review } from '../domain/reviewTypes'
 import { formatReviewStatus, formatUploadedAt } from '../utils/reviewFormatters'
 import ReviewMetadataCard from './ReviewMetadataCard'
@@ -21,20 +22,24 @@ const ReviewHeader = ({ review }: ReviewHeaderProps) => {
       </div>
       <dl className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
         <ReviewMetadataCard
+          Icon={Clock3}
           label="Status"
           value={formatReviewStatus(review.status)}
         />
         <ReviewMetadataCard
+          Icon={FileText}
           label="Version"
           value={`Version ${review.version}`}
         />
         <ReviewMetadataCard
+          Icon={CalendarDays}
           label="Uploaded"
           value={
             <time dateTime={review.uploaded_at}>{formattedUploadedAt}</time>
           }
         />
         <ReviewMetadataCard
+          Icon={UserRound}
           label="Reviewer"
           secondaryValue={review.user.email}
           value={review.user.name}
