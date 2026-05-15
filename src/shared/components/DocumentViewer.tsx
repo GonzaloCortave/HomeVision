@@ -28,7 +28,7 @@ const DocumentViewer = ({
     return (
       <section
         aria-label={title}
-        className="flex min-h-96 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center"
+        className="flex min-h-96 items-center justify-center rounded-lg border border-dashed border-indigo-200 bg-indigo-50 px-6 py-12 text-center"
       >
         <div className="max-w-sm">
           <TitleHeading className="text-base font-semibold text-slate-950">
@@ -47,7 +47,7 @@ const DocumentViewer = ({
       aria-label={title}
       className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
     >
-      <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="flex items-center justify-between gap-4 border-b border-indigo-100 bg-indigo-50 px-4 py-3">
         <TitleHeading className="min-w-0 break-words text-sm font-semibold text-slate-950">
           {title}
         </TitleHeading>
@@ -63,7 +63,7 @@ const DocumentViewer = ({
         </TextLink>
       </div>
       <iframe
-        className="h-[min(72vh,52rem)] w-full bg-slate-100"
+        className="h-[min(72vh,52rem)] w-full bg-[#f8fafc]"
         src={normalizedUrl}
         title={title}
       />

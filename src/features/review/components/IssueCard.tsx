@@ -38,7 +38,7 @@ const IssueCard = ({ issue, titleHeadingLevel = 'h3' }: IssueCardProps) => {
           className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
             blocksSubmission
               ? 'border-red-200 bg-red-50 text-red-800'
-              : 'border-sky-200 bg-sky-50 text-sky-800'
+              : 'border-indigo-200 bg-indigo-50 text-indigo-800'
           }`}
         >
           {blocksSubmission ? 'Blocks submission' : 'Non-blocking'}

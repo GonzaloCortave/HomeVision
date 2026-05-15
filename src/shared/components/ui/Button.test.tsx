@@ -13,7 +13,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: /retry/i })
 
     expect(button).toHaveAttribute('type', 'button')
-    expect(button).toHaveClass('bg-slate-950')
+    expect(button).toHaveClass('bg-indigo-600')
   })
 
   it('supports compact text actions', () => {
@@ -22,6 +22,6 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: /show more/i })
 
     expect(button).toHaveClass('text-xs')
-    expect(button).toHaveClass('text-sky-700')
+    expect(button).toHaveClass('text-indigo-700')
   })
 })

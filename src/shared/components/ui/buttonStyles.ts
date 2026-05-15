@@ -8,13 +8,13 @@ export type ButtonClassNameOptions = {
 }
 
 const buttonBaseClassNames =
-  'inline-flex items-center justify-center gap-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex items-center justify-center gap-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50'
 
 const buttonVariantClassNames: Record<ButtonStyleVariant, string> = {
-  accent: 'bg-sky-700 text-white hover:bg-sky-800',
-  primary: 'bg-slate-950 text-white hover:bg-slate-800',
+  accent: 'bg-indigo-600 text-white hover:bg-indigo-700',
+  primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
   secondary:
-    'border border-slate-300 bg-white text-sky-700 shadow-sm hover:border-sky-300 hover:text-sky-800',
+    'border border-indigo-200 bg-white text-indigo-700 shadow-sm hover:border-indigo-300 hover:text-indigo-800',
 }
 
 const buttonSizeClassNames: Record<ButtonStyleSize, string> = {
@@ -24,7 +24,7 @@ const buttonSizeClassNames: Record<ButtonStyleSize, string> = {
 }
 
 const textButtonClassNames =
-  'inline-flex items-center justify-center gap-1 rounded-sm bg-transparent p-0 text-xs font-semibold text-sky-700 hover:text-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex items-center justify-center gap-1 rounded-sm bg-transparent p-0 text-xs font-semibold text-indigo-700 hover:text-indigo-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50'
 
 export const getButtonClassName = ({
   className,
