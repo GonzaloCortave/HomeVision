@@ -34,19 +34,23 @@ const ReviewPageView = ({
         <ReviewHeader review={review} />
         <ReviewSectionNav />
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-start">
-          <ReviewDocumentSection
-            documentUrl={review.document.url}
-            reviewName={review.name}
-          />
-          <IssuePanel
-            hasDocument={hasDocument}
-            hasSubmittedReview={hasSubmittedReview}
-            issues={issues}
-            onSubmitReview={onSubmitReview}
-            submissionState={submissionState}
-            uploadPageUrl={uploadPageUrl}
-            uploadVersion={uploadVersion}
-          />
+          <div className="order-1 min-w-0 lg:order-2">
+            <IssuePanel
+              hasDocument={hasDocument}
+              hasSubmittedReview={hasSubmittedReview}
+              issues={issues}
+              onSubmitReview={onSubmitReview}
+              submissionState={submissionState}
+              uploadPageUrl={uploadPageUrl}
+              uploadVersion={uploadVersion}
+            />
+          </div>
+          <div className="order-2 min-w-0 lg:order-1">
+            <ReviewDocumentSection
+              documentUrl={review.document.url}
+              reviewName={review.name}
+            />
+          </div>
         </div>
         <ReviewIssuesSection hasDocument={hasDocument} issues={issues} />
       </div>

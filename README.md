@@ -6,6 +6,17 @@ HomeVision's MIRA platform automates collateral reviews for mortgage lending. Op
 
 **Core rule:** `critical` and `major` issues block submission. `minor` issues do not.
 
+## Reviewer Quick Path
+
+Requires Node >=22.12.0; this submission was verified with Node 22.14.0.
+
+```sh
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173/` to start on the Review Page with a blocked review. Use **Upload Version 3** to open the mock re-upload harness, then choose **Clean review** or **Minor issues only** to see submit become available.
+
 ## Quick Start
 
 ```sh
@@ -22,9 +33,10 @@ npm run typecheck
 npm run lint
 npm run format:check
 npm run build
+npm run preview # optional production-bundle smoke test
 ```
 
-All five commands pass cleanly at time of submission.
+The five core verification commands pass cleanly at time of submission. `npm run preview` is included for an optional production-bundle smoke test.
 
 ## What Was Built
 
@@ -138,22 +150,22 @@ Manual QA was performed in Chrome on May 13, 2026 against the local Vite app. Th
 
 ## Testing
 
-**95 tests** across 14 suites. All behavioral, no snapshots, no Tailwind class assertions.
+**96 tests** across 14 suites. All behavioral, no snapshots, no Tailwind class assertions.
 
-| Suite                  | Tests | What it covers                                                                                                                                                    |
-| ---------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Domain selectors       | 21    | Blocking severities, status gating, missing documents, issue counts, sorting, grouping, submission state discriminated union, `canSubmitReview` for every status. |
-| Normalization / client | 4     | Contract validation, coercion of loose types, issue ID deduplication, `ReviewContractError` on invalid data.                                                      |
-| ReviewPageContainer    | 14    | Loading state, error with retry, success rendering, stored mock review loading by route id.                                                                       |
-| ReviewPageView         | 12    | Layout composition, metadata rendering, grouped issues, missing-document states.                                                                                  |
-| ReviewSummary          | 5     | Blocked, ready, missing-document, non-reviewable state copy and severity counts.                                                                                  |
-| ReviewSubmissionPanel  | 11    | Disabled/enabled button, `aria-describedby` connection, local submit success, all submission states.                                                              |
-| IssueCard              | 7     | Severity badge, page number, blocking text, description expand/collapse.                                                                                          |
-| IssueList              | 2     | Rendering with issues, empty state message.                                                                                                                       |
-| DocumentViewer         | 7     | Iframe rendering, accessible title, fallback link, missing URL state.                                                                                             |
-| UI primitives          | 5     | Button, ButtonLink, TextLink — semantic HTML and shared style application.                                                                                        |
-| Formatters             | 3     | Timestamp formatting, status labels, issue count pluralization.                                                                                                   |
-| App smoke              | 4     | Upload route, mock upload scenario navigation, direct review-id loading, and upload context preservation.                                                         |
+| Suite                  | Tests | What it covers                                                                                                                                                                                      |
+| ---------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Domain selectors       | 22    | Blocking severities, status gating, missing documents, issue counts, sorting, grouping, submission state discriminated union, `canSubmitReview` for every status, version normalization edge cases. |
+| Normalization / client | 4     | Contract validation, coercion of loose types, issue ID deduplication, `ReviewContractError` on invalid data.                                                                                        |
+| ReviewPageContainer    | 14    | Loading state, error with retry, success rendering, stored mock review loading by route id.                                                                                                         |
+| ReviewPageView         | 12    | Layout composition, metadata rendering, grouped issues, missing-document states.                                                                                                                    |
+| ReviewSummary          | 5     | Blocked, ready, missing-document, non-reviewable state copy and severity counts.                                                                                                                    |
+| ReviewSubmissionPanel  | 11    | Disabled/enabled button, `aria-describedby` connection, local submit success, all submission states.                                                                                                |
+| IssueCard              | 7     | Severity badge, page number, blocking text, description expand/collapse.                                                                                                                            |
+| IssueList              | 2     | Rendering with issues, empty state message.                                                                                                                                                         |
+| DocumentViewer         | 7     | Iframe rendering, accessible title, fallback link, missing URL state.                                                                                                                               |
+| UI primitives          | 5     | Button, ButtonLink, TextLink — semantic HTML and shared style application.                                                                                                                          |
+| Formatters             | 3     | Timestamp formatting, status labels, issue count pluralization.                                                                                                                                     |
+| App smoke              | 4     | Upload route, mock upload scenario navigation, direct review-id loading, and upload context preservation.                                                                                           |
 
 **Not testable in jsdom:** native PDF search. That remains a manual QA step (see checklist above).
 

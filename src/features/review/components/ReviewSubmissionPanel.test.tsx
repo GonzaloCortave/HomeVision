@@ -16,7 +16,9 @@ describe('ReviewSubmissionPanel', () => {
   it('keeps submit visible and sends blocked reviews to upload', () => {
     renderReviewSubmissionPanel(createReviewMock('blocked'))
 
-    const helperText = screen.getByText(/resolve blockers/i)
+    const helperText = screen.getByText(
+      /resolve blockers in the source document/i,
+    )
     const submitButton = screen.getByRole('button', {
       name: /submit review/i,
     })

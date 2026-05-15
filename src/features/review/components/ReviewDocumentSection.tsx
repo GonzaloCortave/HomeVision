@@ -15,6 +15,7 @@ const ReviewDocumentSection = ({
       aria-labelledby="document-heading"
       className="min-w-0"
       id={REVIEW_SECTION_IDS.document}
+      tabIndex={-1}
     >
       <div className="mb-3">
         <h2
@@ -32,7 +33,7 @@ const ReviewDocumentSection = ({
       <DocumentViewer
         documentUrl={documentUrl}
         missingDocumentDescription="Preview unavailable until a document is uploaded."
-        title={reviewName}
+        title={`PDF preview for ${reviewName}`}
         titleHeadingLevel="h3"
       />
     </section>

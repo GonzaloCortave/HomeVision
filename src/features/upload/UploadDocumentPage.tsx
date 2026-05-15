@@ -34,8 +34,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
   {
     ButtonIcon: Clock3,
     Icon: UploadCloud,
-    description:
-      'Mocks a newly created upload before document analysis has started.',
+    description: 'Newly created upload before document analysis has started.',
     iconClassName: 'border-slate-200 text-slate-700',
     statusLabel: 'created',
     title: 'Created review',
@@ -45,7 +44,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
     ButtonIcon: FileSearch,
     Icon: FileSearch,
     description:
-      'Mocks a document that is still being analyzed and cannot be submitted yet.',
+      'Document analysis is still in progress and cannot be submitted yet.',
     iconClassName: 'border-amber-200 text-amber-700',
     statusLabel: 'processing',
     title: 'Processing review',
@@ -55,7 +54,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
     ButtonIcon: ShieldAlert,
     Icon: ShieldAlert,
     description:
-      'Mocks an on-review document with critical and major issues that block submission.',
+      'On-review document with critical and major issues that block submission.',
     iconClassName: 'border-red-200 text-red-700',
     statusLabel: 'on_review',
     title: 'Blocked review',
@@ -65,7 +64,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
     ButtonIcon: AlertTriangle,
     Icon: AlertTriangle,
     description:
-      'Mocks an on-review document where only minor, non-blocking issues remain.',
+      'On-review document where only minor, non-blocking issues remain.',
     iconClassName: 'border-orange-200 text-orange-700',
     statusLabel: 'on_review',
     title: 'Minor issues only',
@@ -75,7 +74,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
     ButtonIcon: CheckCircle2,
     Icon: CheckCircle2,
     description:
-      'Mocks an on-review document with no detected issues and a ready submit state.',
+      'On-review document with no detected issues and a ready submit state.',
     iconClassName: 'border-emerald-200 text-emerald-700',
     statusLabel: 'on_review',
     title: 'Clean review',
@@ -84,7 +83,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
   {
     ButtonIcon: CheckCircle2,
     Icon: FileText,
-    description: 'Mocks a completed review that has already been submitted.',
+    description: 'Completed review that has already been submitted.',
     iconClassName: 'border-indigo-200 text-indigo-700',
     statusLabel: 'submitted',
     title: 'Submitted review',
@@ -94,7 +93,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
     ButtonIcon: FileQuestion,
     Icon: FileQuestion,
     description:
-      'Mocks a review where the uploaded PDF is missing from the review payload.',
+      'Review where the uploaded PDF is missing from the review payload.',
     iconClassName: 'border-rose-200 text-rose-700',
     statusLabel: 'missing document',
     title: 'Missing document',
@@ -104,7 +103,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
     ButtonIcon: ShieldAlert,
     Icon: FileQuestion,
     description:
-      'Mocks a missing document plus blocking issues so the reviewer sees both failure states.',
+      'Missing document plus blocking issues so the reviewer sees both failure states.',
     iconClassName: 'border-red-200 text-red-700',
     statusLabel: 'missing document',
     title: 'Missing document with blockers',
@@ -141,7 +140,7 @@ const UploadDocumentPage = () => {
               Upload document
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Select the mocked upload outcome. Each path simulates upload,
+              Choose a demo review outcome. Each path simulates upload,
               analysis, and navigation into the review page.
             </p>
             {uploadContext.documentName ? (
@@ -215,7 +214,7 @@ const MockScenarioCard = ({
         </p>
       </div>
       <Button
-        aria-label={`Mock ${scenario.title} and open review page`}
+        aria-label={`Create ${scenario.title} and open review page`}
         className="mt-5 w-full"
         onClick={() => {
           onSelectScenario(scenario)
@@ -226,7 +225,7 @@ const MockScenarioCard = ({
           className="size-4"
           strokeWidth={2}
         />
-        Mock this state
+        Open review
       </Button>
     </article>
   )

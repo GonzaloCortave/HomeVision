@@ -37,7 +37,7 @@ const IssuePanel = ({
       className="min-w-0 space-y-4 lg:sticky lg:top-6"
     >
       <div>
-        <p className="text-sm font-semibold uppercase text-slate-500">
+        <p className="text-sm font-semibold uppercase text-slate-600">
           Review panel
         </p>
         <h2

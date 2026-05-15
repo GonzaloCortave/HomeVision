@@ -10,28 +10,28 @@ afterEach(() => {
 })
 
 describe('App', () => {
-  it('renders the upload document mock page by default', () => {
+  it('renders the review page by default', async () => {
     render(<App />)
 
     expect(
-      screen.getByRole('heading', {
+      await screen.findByRole('heading', {
         level: 1,
-        name: /upload document/i,
+        name: /123-maple-appraisal-review\.pdf/i,
       }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', {
-        name: /mock clean review and open review page/i,
-      }),
+      screen.getByRole('heading', { name: /fix blockers before submitting/i }),
     ).toBeInTheDocument()
   })
 
   it('navigates from upload mocks to the selected review state', async () => {
+    window.history.pushState({}, '', '/upload')
+
     render(<App />)
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: /mock blocked review and open review page/i,
+        name: /create blocked review and open review page/i,
       }),
     )
 
@@ -103,7 +103,7 @@ describe('App', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: /mock clean review and open review page/i,
+        name: /create clean review and open review page/i,
       }),
     )
 

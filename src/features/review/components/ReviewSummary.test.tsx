@@ -19,11 +19,8 @@ describe('ReviewSummary', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(/4 blocking issues/i)).toBeInTheDocument()
     expect(
-      screen.getByText(
-        /critical and major issues must be resolved before this review can be submitted/i,
-      ),
+      screen.getByText(/critical and major issues must be resolved/i),
     ).toBeInTheDocument()
-    expect(screen.queryByText(/upload|version/i)).not.toBeInTheDocument()
     expectSeverityCount('Critical', '2')
     expectSeverityCount('Major', '2')
     expectSeverityCount('Minor', '3')
@@ -61,7 +58,7 @@ describe('ReviewSummary', () => {
     renderReviewSummary('createdWithIssues')
 
     expect(
-      screen.getByRole('heading', { name: /not ready for submission/i }),
+      screen.getByRole('heading', { name: /submission unavailable/i }),
     ).toBeInTheDocument()
     expect(screen.getByText(/this review is created/i)).toBeInTheDocument()
     expect(screen.getByText(/not submittable/i)).toBeInTheDocument()

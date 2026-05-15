@@ -374,7 +374,7 @@ describe('review selectors', () => {
       name: 'Untitled review document',
       uploaded_at: '',
       status: 'on_review',
-      version: 0,
+      version: 1,
       user: {
         id: 'unknown-reviewer',
         name: 'Unassigned reviewer',
@@ -443,6 +443,17 @@ describe('review selectors', () => {
     )
 
     expect(normalizedReview.document.url).toBeNull()
+  })
+
+  it('normalizes invalid API versions to a positive fallback version', () => {
+    for (const version of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(
+        normalizeReview({
+          ...createReview(),
+          version,
+        }).version,
+      ).toBe(1)
+    }
   })
 
   it('trims API document URLs during normalization', () => {
