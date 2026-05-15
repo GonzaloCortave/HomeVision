@@ -5,6 +5,8 @@ import {
   screen,
   within,
 } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createReviewMock } from './data/reviewMock'
 import {
@@ -448,6 +450,10 @@ const renderReviewPageView = (
     onSubmitReview?: () => void
   } = {},
 ) => {
+  const RouterWrapper = ({ children }: { children: ReactNode }) => (
+    <MemoryRouter>{children}</MemoryRouter>
+  )
+
   return render(
     <ReviewPageView
       hasSubmittedReview={options.hasSubmittedReview ?? false}
@@ -456,5 +462,6 @@ const renderReviewPageView = (
       review={review}
       submissionState={getSubmissionState(review)}
     />,
+    { wrapper: RouterWrapper },
   )
 }

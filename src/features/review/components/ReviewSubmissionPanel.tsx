@@ -6,8 +6,9 @@ import {
   Upload,
   type LucideIcon,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import Button from '../../../shared/components/ui/Button'
-import ButtonLink from '../../../shared/components/ui/ButtonLink'
+import { getButtonClassName } from '../../../shared/components/ui/buttonStyles'
 import type { SubmissionState } from '../domain/reviewSelectors'
 import { formatReviewStatus } from '../utils/reviewFormatters'
 
@@ -114,17 +115,19 @@ const ReviewSubmissionPanel = ({
           )}
           {content.submitLabel}
         </Button>
-        <ButtonLink
+        <Link
           aria-label={content.uploadAccessibleLabel}
           aria-describedby={SUBMISSION_HELPER_ID}
-          className="w-full"
-          href={uploadPageUrl}
-          size="md"
-          variant={content.canSubmit ? 'secondary' : 'accent'}
+          className={getButtonClassName({
+            className: 'w-full',
+            size: 'md',
+            variant: content.canSubmit ? 'secondary' : 'accent',
+          })}
+          to={uploadPageUrl}
         >
           <Upload aria-hidden="true" className="size-4" strokeWidth={2} />
           {content.uploadLabel}
-        </ButtonLink>
+        </Link>
       </div>
     </section>
   )

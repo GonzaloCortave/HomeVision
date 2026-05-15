@@ -1,10 +1,39 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
+import { mockUploadDocument } from '../features/upload/data/uploadClient'
 import App from './App'
 
+afterEach(() => {
+  cleanup()
+  sessionStorage.clear()
+  window.history.pushState({}, '', '/')
+})
+
 describe('App', () => {
-  it('renders the default review page smoke path', async () => {
+  it('renders the upload document mock page by default', () => {
     render(<App />)
+
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: /upload document/i,
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: /mock clean review and open review page/i,
+      }),
+    ).toBeInTheDocument()
+  })
+
+  it('navigates from upload mocks to the selected review state', async () => {
+    render(<App />)
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /mock blocked review and open review page/i,
+      }),
+    )
 
     expect(
       await screen.findByRole('heading', {
@@ -12,9 +41,8 @@ describe('App', () => {
         name: /123-maple-appraisal-review\.pdf/i,
       }),
     ).toBeInTheDocument()
-    expect(
-      screen.getByTitle('123-maple-appraisal-review.pdf'),
-    ).toBeInTheDocument()
+    expect(window.location.pathname).toMatch(/^\/review\/mock-review-/)
+    expect(window.location.search).toBe('')
     expect(
       screen.getByRole('heading', { level: 2, name: /issues/i }),
     ).toBeInTheDocument()
@@ -27,5 +55,69 @@ describe('App', () => {
       'href',
       '/upload?currentVersion=2&documentName=123-maple-appraisal-review.pdf&nextVersion=3',
     )
+  })
+
+  it('loads direct review routes from stored mock review ids', async () => {
+    const { reviewId } = await mockUploadDocument({
+      documentName: '123-maple-appraisal-review.pdf',
+      variant: 'minorOnly',
+      version: 3,
+    })
+    window.history.pushState({}, '', `/review/${reviewId}`)
+
+    render(<App />)
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /123-maple-appraisal-review\.pdf/i,
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Version 3')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /ready to submit/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('preserves upload version context when a review sends the user to upload', async () => {
+    const { reviewId } = await mockUploadDocument({
+      documentName: '123-maple-appraisal-review.pdf',
+      variant: 'blocked',
+      version: 2,
+    })
+    window.history.pushState({}, '', `/review/${reviewId}`)
+
+    render(<App />)
+
+    fireEvent.click(
+      await screen.findByRole('link', { name: /upload version 3/i }),
+    )
+
+    expect(window.location.pathname).toBe('/upload')
+    expect(window.location.search).toBe(
+      '?currentVersion=2&documentName=123-maple-appraisal-review.pdf&nextVersion=3',
+    )
+    expect(
+      screen.getByRole('heading', { level: 1, name: /upload document/i }),
+    ).toBeInTheDocument()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /mock clean review and open review page/i,
+      }),
+    )
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /123-maple-appraisal-review\.pdf/i,
+      }),
+    ).toBeInTheDocument()
+    expect(window.location.pathname).toMatch(/^\/review\/mock-review-/)
+    expect(window.location.search).toBe('')
+    expect(screen.getByText('Version 3')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /ready to submit/i }),
+    ).toBeInTheDocument()
   })
 })

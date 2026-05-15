@@ -37,6 +37,7 @@ The primary user is a collateral reviewer who must inspect a PDF, understand AI-
 | **Review summary** | Severity counts (critical / major / minor), blocked / ready / missing-document / non-reviewable state with operational copy explaining what to fix and where.                                                                                                                                                                                                                                             |
 | **Issue list**     | Issues grouped by severity in a three-column grid, sorted by page within each group. Each card shows severity badge, page number, title, expand/collapse for long descriptions, and blocking impact text.                                                                                                                                                                                                 |
 | **Submit panel**   | Always shows both actions: submit the current review when eligible, or go to Upload Page for `version + 1`. Submit is enabled only when `on_review` + zero blocking issues + document URL present; Upload remains available so reviewers can replace the document even when the current review is ready. Records local success state on submit. `aria-describedby` connects helper text to both controls. |
+| **Upload page**    | Mock upload flow that lets reviewers choose the analysis outcome to simulate. The upload action creates a complete mock review, stores it in `sessionStorage`, and navigates to `/review/:reviewId`, matching the shape of a real upload API handoff.                                                                                                                                                     |
 | **Mobile layout**  | Stacked layout with Document / Issues anchor links visible in the first viewport for quick navigation.                                                                                                                                                                                                                                                                                                    |
 | **Edge states**    | Loading with status announcement, error with retry, missing PDF, no issues, minor-only, and local submitted confirmation — all covered by component tests.                                                                                                                                                                                                                                                |
 
@@ -45,6 +46,7 @@ The primary user is a collateral reviewer who must inspect a PDF, understand AI-
 The challenge references `review_mock.json` and `example_document.pdf`, but neither file was available. Rather than guess silently, I documented the gap and built explicit fallbacks.
 
 - **Mock data** — `src/features/review/data/reviewMock.ts` provides 12 fixture variants (blocked, minor-only, no-issues, created, processing, submitted, missing-document, and combinations). Each variant is used in tests.
+- **Mock upload API** — `src/features/upload/data/uploadClient.ts` is a temporary API boundary for the demo upload flow. It creates a complete review, persists it in `sessionStorage`, and returns a `reviewId`; replace this boundary with the real upload endpoint when available.
 - **Fallback PDF** — `public/local-sample-uploaded-document.pdf` is a text-based PDF so browser-native Cmd+F search works with terms like _HomeVision_, _critical issue_, and _flood certification_.
 - **Normalization layer** — `src/features/review/domain/reviewTypes.ts` defines a raw `ApiReview` input type and a strict `Review` output type. The `normalizeReview()` function validates the contract, coerces loose types (string page numbers, missing arrays), deduplicates issue IDs, and throws a typed `ReviewContractError` on invalid data. If the real mock shape differs, only the normalizer changes — all UI and business logic stays stable.
 
@@ -69,12 +71,12 @@ All blocking logic lives in pure functions under `src/features/review/domain/rev
 3. **Submit eligibility** — `status === 'on_review'` AND zero blocking issues AND document URL present.
 4. **Non-reviewable statuses** — `created`, `processing`, and `submitted` display the review but disable submission with clear copy explaining why.
 5. **No in-app resolve** — Blocking issues are fixed by correcting the source document outside this app, then uploading the corrected document. The app does not invent a resolve action because that workflow is not supported by the product contract.
-6. **Upload handoff** — The submit panel always links to `/upload` with current-review context and `nextVersion = review.version + 1`. After the user uploads the corrected, replacement, or missing document, it is processed before entering review; this page only redirects to upload.
+6. **Upload handoff** — The submit panel always links to `/upload` with current-review context and `nextVersion = review.version + 1`. In this demo, choosing a mock analysis outcome creates a new review in the mock upload client and routes to `/review/:reviewId`; in production, that boundary should be replaced by the real upload endpoint.
 7. **Submission state machine** — `getSubmissionState()` returns a discriminated union (`not_reviewable | blocked | missing_document | ready`) so components pattern-match on state rather than recomputing eligibility.
 
 ## Architecture
 
-29 source files, 14 test files (2,075 lines of tests).
+Source is split by feature so the mock upload boundary can be replaced without rewriting the review UI.
 
 ```
 src/
@@ -82,6 +84,7 @@ src/
   features/review/
     domain/                     Types, normalizeReview(), pure selectors
     data/                       Async mock client + 12 fixture variants
+                                sessionStorage-backed mock review store
     hooks/                      useReviewLoader (loading/error/success)
     components/                 ReviewHeader, ReviewSummary, IssuePanel,
                                 IssueList, IssueCard, SubmitPanel,
@@ -89,6 +92,9 @@ src/
     utils/                      Formatting helpers (timestamps, status, counts)
     ReviewPageContainer.tsx     Data-loading boundary (fetches + state)
     ReviewPageView.tsx          Pure layout composition (props only)
+  features/upload/
+    data/                       Mock upload client API boundary
+    UploadDocumentPage.tsx      Demo upload flow and scenario selection
   shared/components/
     DocumentViewer.tsx          Generic PDF iframe viewer
     ui/                         Button, ButtonLink, TextLink primitives
@@ -101,6 +107,7 @@ src/
 - **Immutable domain model** — All domain types use `readonly` properties and `readonly` arrays. No mutation of review data after normalization.
 - **Normalization boundary** — Raw API data enters through `normalizeReview()` and is validated once. All downstream code uses the strict `Review` type with no `any` or `unknown` leaking past the boundary.
 - **Container / View split** — `ReviewPageContainer` owns data fetching and local state. `ReviewPageView` is a pure layout component driven entirely by props, making it independently testable with any fixture.
+- **Mock API boundary** — Upload scenarios are handled in `uploadClient.ts`, not by query-string state in the review page. The mocked client behaves like `POST /upload -> reviewId`, and `ReviewPageContainer` behaves like `GET /review/:reviewId`.
 - **No global state** — Local `useState` + derived selectors. A single-page mocked workflow does not justify Redux, Zustand, or Context.
 - **No UI library** — Small local primitives (`Button`, `ButtonLink`, `TextLink`) with shared Tailwind styles in `buttonStyles.ts`. The dependency surface stays minimal for this scope.
 - **Component convention** — Typed `const` arrow functions with explicit prop types. No `useEffect` where an event handler or derived value suffices (only the data-loading hook uses `useEffect`).
@@ -131,13 +138,13 @@ Manual QA was performed in Chrome on May 13, 2026 against the local Vite app. Th
 
 ## Testing
 
-**91 tests** across 14 suites, **2,075 lines** of test code. All behavioral, no snapshots, no Tailwind class assertions.
+**95 tests** across 14 suites. All behavioral, no snapshots, no Tailwind class assertions.
 
 | Suite                  | Tests | What it covers                                                                                                                                                    |
 | ---------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Domain selectors       | 21    | Blocking severities, status gating, missing documents, issue counts, sorting, grouping, submission state discriminated union, `canSubmitReview` for every status. |
 | Normalization / client | 4     | Contract validation, coercion of loose types, issue ID deduplication, `ReviewContractError` on invalid data.                                                      |
-| ReviewPageContainer    | 13    | Loading state, error with retry, success rendering, all 12 fixture variants.                                                                                      |
+| ReviewPageContainer    | 14    | Loading state, error with retry, success rendering, stored mock review loading by route id.                                                                       |
 | ReviewPageView         | 12    | Layout composition, metadata rendering, grouped issues, missing-document states.                                                                                  |
 | ReviewSummary          | 5     | Blocked, ready, missing-document, non-reviewable state copy and severity counts.                                                                                  |
 | ReviewSubmissionPanel  | 11    | Disabled/enabled button, `aria-describedby` connection, local submit success, all submission states.                                                              |
@@ -146,14 +153,15 @@ Manual QA was performed in Chrome on May 13, 2026 against the local Vite app. Th
 | DocumentViewer         | 7     | Iframe rendering, accessible title, fallback link, missing URL state.                                                                                             |
 | UI primitives          | 5     | Button, ButtonLink, TextLink — semantic HTML and shared style application.                                                                                        |
 | Formatters             | 3     | Timestamp formatting, status labels, issue count pluralization.                                                                                                   |
-| App smoke              | 1     | Full app renders with default mock data.                                                                                                                          |
+| App smoke              | 4     | Upload route, mock upload scenario navigation, direct review-id loading, and upload context preservation.                                                         |
 
 **Not testable in jsdom:** native PDF search. That remains a manual QA step (see checklist above).
 
 ## Known Limitations
 
-- **No backend** — Submit records local state only; no API call.
-- **Single page** — No upload, processing, or submitted pages are implemented; the submit panel redirects to the Upload Page entry point.
+- **No backend** — Submit records local state only; no API call. Upload uses a mock client backed by `sessionStorage`.
+- **Mock upload persistence** — Reviews created by the upload mock are scoped to the current browser tab/session; shared links to `/review/:reviewId` are not durable until a real backend exists.
+- **No processing delay** — The upload page lets reviewers choose the post-analysis state directly instead of waiting through an asynchronous processing screen.
 - **No historical versions** — Only the latest uploaded document version is shown.
 - **No auth** — No authentication, authorization, or user management.
 - **No PDF annotations** — No page linking, annotation editing, or extracted-text search UI.
@@ -169,7 +177,7 @@ This is a take-home implementation scoped to the challenge requirements. Before 
 - **E2E tests** — Playwright smoke tests for blocked/ready submit flows and PDF rendering.
 - **Accessibility audit** — Automated axe-core in CI plus manual screen reader verification.
 - **Observability** — Analytics for blocked submission attempts, successful submissions, and issue filter usage.
-- **Upload workflow** — Implement the Upload Page target, actual re-upload mutation, processing state transitions, and version history.
+- **Upload workflow** — Replace the mock upload client with the actual re-upload mutation, processing state transitions, durable review ids, and version history.
 
 ## AI Disclosure
 
@@ -182,6 +190,7 @@ AI tools (Windsurf with Claude) were used to accelerate implementation scaffoldi
 | Dependency            | Version      | Purpose                         |
 | --------------------- | ------------ | ------------------------------- |
 | React                 | 19.2         | UI framework                    |
+| React Router DOM      | 7.15         | Client-side routing             |
 | TypeScript            | 6.0 (strict) | Type safety, zero `any`         |
 | Vite                  | 8.0          | Dev server and production build |
 | Tailwind CSS          | 4.1          | Utility-first styling           |
@@ -190,4 +199,4 @@ AI tools (Windsurf with Claude) were used to accelerate implementation scaffoldi
 | React Testing Library | 16.3         | Component testing by behavior   |
 | jsdom                 | 29.1         | Test DOM environment            |
 
-Runtime dependencies are limited to React, ReactDOM, and lucide-react for accessible SVG icons. All other packages are devDependencies.
+Runtime dependencies are limited to React, ReactDOM, React Router DOM, and lucide-react for accessible SVG icons. All other packages are devDependencies.

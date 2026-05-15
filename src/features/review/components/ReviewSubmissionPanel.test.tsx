@@ -1,4 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createReviewMock, type ReviewMockVariant } from '../data/reviewMock'
 import { getSubmissionState } from '../domain/reviewSelectors'
@@ -163,6 +165,10 @@ const renderReviewSubmissionPanel = (
     onSubmitReview?: () => void
   } = {},
 ) => {
+  const RouterWrapper = ({ children }: { children: ReactNode }) => (
+    <MemoryRouter>{children}</MemoryRouter>
+  )
+
   return render(
     <ReviewSubmissionPanel
       hasSubmittedReview={options.hasSubmittedReview ?? false}
@@ -171,5 +177,6 @@ const renderReviewSubmissionPanel = (
       uploadPageUrl={`/upload?currentVersion=${review.version}&documentName=${review.name}&nextVersion=${review.version + 1}`}
       uploadVersion={review.version + 1}
     />,
+    { wrapper: RouterWrapper },
   )
 }

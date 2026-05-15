@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import {
   ReviewPageErrorState,
   ReviewPageLoadingState,
@@ -18,12 +19,12 @@ export type ReviewPageContainerProps = {
 
 export type { ReviewLoader } from './hooks/useReviewLoader'
 
-const defaultReviewLoader: ReviewLoader = () => loadReview()
-
-const ReviewPageContainer = ({
-  loadReviewData = defaultReviewLoader,
-}: ReviewPageContainerProps) => {
-  const { reviewQuery, retry } = useReviewLoader(loadReviewData)
+const ReviewPageContainer = ({ loadReviewData }: ReviewPageContainerProps) => {
+  const { reviewId } = useParams()
+  const routeReviewLoader = useRouteReviewLoader(reviewId)
+  const { reviewQuery, retry } = useReviewLoader(
+    loadReviewData ?? routeReviewLoader,
+  )
   const [submittedReviewKey, setSubmittedReviewKey] = useState<string | null>(
     null,
   )
@@ -62,6 +63,12 @@ const ReviewPageContainer = ({
       submissionState={submissionState}
     />
   )
+}
+
+const useRouteReviewLoader = (reviewId: string | undefined): ReviewLoader => {
+  return useMemo<ReviewLoader>(() => {
+    return () => loadReview({ reviewId })
+  }, [reviewId])
 }
 
 const getReviewKey = (review: Review): string => {
