@@ -1,5 +1,8 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import type { ReactElement, ReactNode } from 'react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { mockUploadDocument } from '../upload/data/uploadClient'
 import { createReviewMock } from './data/reviewMock'
 import {
   ReviewContractError,
@@ -10,8 +13,20 @@ import ReviewPageContainer, { type ReviewLoader } from './ReviewPageContainer'
 
 afterEach(() => {
   cleanup()
+  sessionStorage.clear()
   vi.restoreAllMocks()
 })
+
+const renderReviewPageContainer = (
+  reviewPageContainer: ReactElement,
+  initialEntries: readonly string[] = ['/review'],
+) => {
+  const RouterWrapper = ({ children }: { children: ReactNode }) => (
+    <MemoryRouter initialEntries={[...initialEntries]}>{children}</MemoryRouter>
+  )
+
+  return render(reviewPageContainer, { wrapper: RouterWrapper })
+}
 
 describe('ReviewPageContainer', () => {
   it('renders the loading shell while review data is loading', () => {
@@ -19,7 +34,9 @@ describe('ReviewPageContainer', () => {
       () => new Promise<Review>(() => {}),
     )
 
-    render(<ReviewPageContainer loadReviewData={loadReviewData} />)
+    renderReviewPageContainer(
+      <ReviewPageContainer loadReviewData={loadReviewData} />,
+    )
 
     expect(screen.getByRole('status')).toHaveTextContent(/loading review data/i)
     expect(loadReviewData).toHaveBeenCalledTimes(1)
@@ -30,7 +47,9 @@ describe('ReviewPageContainer', () => {
       Promise.resolve(createReviewMock('noIssues')),
     )
 
-    render(<ReviewPageContainer loadReviewData={loadReviewData} />)
+    renderReviewPageContainer(
+      <ReviewPageContainer loadReviewData={loadReviewData} />,
+    )
 
     expect(
       await screen.findByRole('heading', {
@@ -41,6 +60,33 @@ describe('ReviewPageContainer', () => {
     expect(loadReviewData).toHaveBeenCalledTimes(1)
   })
 
+  it('loads stored mock reviews from the route review id', async () => {
+    const { reviewId } = await mockUploadDocument({
+      documentName: '123-maple-appraisal-review.pdf',
+      variant: 'minorOnly',
+      version: 3,
+    })
+
+    render(
+      <MemoryRouter initialEntries={[`/review/${reviewId}`]}>
+        <Routes>
+          <Route element={<ReviewPageContainer />} path="/review/:reviewId" />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /123-maple-appraisal-review\.pdf/i,
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Version 3')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /ready to submit/i }),
+    ).toBeInTheDocument()
+  })
+
   it('returns to the loading shell when the loader changes', async () => {
     const firstLoader = vi.fn<ReviewLoader>(() =>
       Promise.resolve(createReviewMock('noIssues')),
@@ -49,7 +95,7 @@ describe('ReviewPageContainer', () => {
       () => new Promise<Review>(() => {}),
     )
 
-    const { rerender } = render(
+    const { rerender } = renderReviewPageContainer(
       <ReviewPageContainer loadReviewData={firstLoader} />,
     )
 
@@ -78,7 +124,7 @@ describe('ReviewPageContainer', () => {
     const firstLoader = vi.fn<ReviewLoader>(() => firstLoad.promise)
     const secondLoader = vi.fn<ReviewLoader>(() => secondLoad.promise)
 
-    const { rerender } = render(
+    const { rerender } = renderReviewPageContainer(
       <ReviewPageContainer loadReviewData={firstLoader} />,
     )
 
@@ -123,7 +169,7 @@ describe('ReviewPageContainer', () => {
     const firstLoader = vi.fn<ReviewLoader>(() => firstLoad.promise)
     const secondLoader = vi.fn<ReviewLoader>(() => secondLoad.promise)
 
-    const { rerender } = render(
+    const { rerender } = renderReviewPageContainer(
       <ReviewPageContainer loadReviewData={firstLoader} />,
     )
 
@@ -164,7 +210,7 @@ describe('ReviewPageContainer', () => {
       () => new Promise<Review>(() => {}),
     )
 
-    const { rerender } = render(
+    const { rerender } = renderReviewPageContainer(
       <ReviewPageContainer loadReviewData={firstLoader} />,
     )
 
@@ -195,7 +241,9 @@ describe('ReviewPageContainer', () => {
       .mockRejectedValueOnce(new Error('Mock review service outage.'))
       .mockResolvedValueOnce(createReviewMock('minorOnly'))
 
-    render(<ReviewPageContainer loadReviewData={loadReviewData} />)
+    renderReviewPageContainer(
+      <ReviewPageContainer loadReviewData={loadReviewData} />,
+    )
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /mock review service outage/i,
@@ -217,7 +265,9 @@ describe('ReviewPageContainer', () => {
       throw new Error('Synchronous loader failure.')
     })
 
-    render(<ReviewPageContainer loadReviewData={loadReviewData} />)
+    renderReviewPageContainer(
+      <ReviewPageContainer loadReviewData={loadReviewData} />,
+    )
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /synchronous loader failure/i,
@@ -231,7 +281,9 @@ describe('ReviewPageContainer', () => {
       )
     })
 
-    render(<ReviewPageContainer loadReviewData={loadReviewData} />)
+    renderReviewPageContainer(
+      <ReviewPageContainer loadReviewData={loadReviewData} />,
+    )
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /review data is incomplete or uses an unsupported format/i,
@@ -245,7 +297,9 @@ describe('ReviewPageContainer', () => {
       Promise.resolve(createReviewMock('noIssues')),
     )
 
-    render(<ReviewPageContainer loadReviewData={loadReviewData} />)
+    renderReviewPageContainer(
+      <ReviewPageContainer loadReviewData={loadReviewData} />,
+    )
 
     fireEvent.click(
       await screen.findByRole('button', { name: /submit review/i }),
@@ -266,7 +320,7 @@ describe('ReviewPageContainer', () => {
       Promise.resolve(createReviewMock('minorOnly')),
     )
 
-    const { rerender } = render(
+    const { rerender } = renderReviewPageContainer(
       <ReviewPageContainer loadReviewData={firstLoader} />,
     )
 
@@ -312,7 +366,7 @@ describe('ReviewPageContainer', () => {
       Promise.resolve(secondReview),
     )
 
-    const { rerender } = render(
+    const { rerender } = renderReviewPageContainer(
       <ReviewPageContainer loadReviewData={firstLoader} />,
     )
 
@@ -358,7 +412,7 @@ describe('ReviewPageContainer', () => {
       Promise.resolve(secondReview),
     )
 
-    const { rerender } = render(
+    const { rerender } = renderReviewPageContainer(
       <ReviewPageContainer loadReviewData={firstLoader} />,
     )
 
