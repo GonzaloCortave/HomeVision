@@ -6,10 +6,10 @@ export type ReviewPageErrorStateProps = {
 }
 
 const ReviewPageLoadingState = () => (
-  <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
+  <main className="min-h-screen bg-[#f8fafc] px-4 py-6 text-zinc-950 sm:px-6 lg:px-8">
     <div className="mx-auto flex max-w-7xl flex-col gap-5">
-      <header className="border-b border-slate-200 pb-5">
-        <p className="text-sm font-semibold uppercase text-sky-700">
+      <header className="border-b border-indigo-100 pb-5">
+        <p className="text-sm font-semibold uppercase text-indigo-600">
           HomeVision review
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-950">
@@ -36,10 +36,10 @@ const ReviewPageErrorState = ({
   message,
   onRetry,
 }: ReviewPageErrorStateProps) => (
-  <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
+  <main className="min-h-screen bg-[#f8fafc] px-4 py-6 text-zinc-950 sm:px-6 lg:px-8">
     <div className="mx-auto flex max-w-7xl flex-col gap-5">
-      <header className="border-b border-slate-200 pb-5">
-        <p className="text-sm font-semibold uppercase text-sky-700">
+      <header className="border-b border-indigo-100 pb-5">
+        <p className="text-sm font-semibold uppercase text-indigo-600">
           HomeVision review
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-950">

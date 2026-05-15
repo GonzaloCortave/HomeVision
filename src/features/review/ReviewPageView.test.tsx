@@ -311,12 +311,10 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /fix blockers before submitting/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getAllByText(
-        /fix critical and major issues in the source document/i,
-      ),
-    ).toHaveLength(2)
+      screen.getByText(/critical and major issues must be resolved/i),
+    ).toBeInTheDocument()
     expect(
-      screen.getByText(/submit unlocks when no blockers remain/i),
+      screen.getByText(/resolve blockers in the source document/i),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /submit review/i }),

@@ -84,7 +84,7 @@ const uploadMockScenarios: readonly UploadMockScenario[] = [
     ButtonIcon: CheckCircle2,
     Icon: FileText,
     description: 'Completed review that has already been submitted.',
-    iconClassName: 'border-indigo-200 text-indigo-700',
+    iconClassName: 'border-violet-200 text-violet-700',
     statusLabel: 'submitted',
     title: 'Submitted review',
     variant: 'submitted',
@@ -129,14 +129,14 @@ const UploadDocumentPage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#f8fafc] px-4 py-6 text-zinc-950 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-5">
-        <header className="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-end lg:justify-between">
+        <header className="flex flex-col gap-4 border-b border-indigo-100 pb-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase text-sky-700">
+            <p className="text-sm font-semibold uppercase text-indigo-600">
               HomeVision intake
             </p>
-            <h1 className="mt-2 text-2xl font-semibold text-slate-950">
+            <h1 className="mt-2 text-2xl font-semibold text-zinc-950">
               Upload document
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -175,7 +175,7 @@ const UploadDocumentPage = () => {
 
 const MockStep = ({ label, value }: { label: string; value: string }) => {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+    <div className="rounded-lg border border-indigo-100 bg-white p-3 shadow-sm">
       <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
       <p className="mt-1 font-semibold text-slate-950">{value}</p>
     </div>
@@ -190,11 +190,11 @@ const MockScenarioCard = ({
   scenario: UploadMockScenario
 }) => {
   return (
-    <article className="flex min-h-72 flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="flex min-h-72 flex-col justify-between rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
       <div>
         <div className="flex items-start justify-between gap-3">
           <span
-            className={`flex size-10 shrink-0 items-center justify-center rounded-lg border bg-slate-50 ${scenario.iconClassName}`}
+            className={`flex size-10 shrink-0 items-center justify-center rounded-lg border bg-indigo-50 ${scenario.iconClassName}`}
           >
             <scenario.Icon
               aria-hidden="true"
@@ -202,7 +202,7 @@ const MockScenarioCard = ({
               strokeWidth={2}
             />
           </span>
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
+          <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
             {scenario.statusLabel}
           </span>
         </div>

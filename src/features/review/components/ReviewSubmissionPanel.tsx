@@ -59,7 +59,7 @@ const ReviewSubmissionPanel = ({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <span
-            className={`flex size-8 shrink-0 items-center justify-center rounded-full border bg-slate-50 ${content.iconClassName}`}
+            className={`flex size-8 shrink-0 items-center justify-center rounded-full border bg-indigo-50 ${content.iconClassName}`}
           >
             <content.Icon
               aria-hidden="true"
@@ -68,7 +68,7 @@ const ReviewSubmissionPanel = ({
             />
           </span>
           <div>
-            <p className="text-xs font-semibold uppercase text-sky-700">
+            <p className="text-xs font-semibold uppercase text-indigo-600">
               Submission
             </p>
             <h3

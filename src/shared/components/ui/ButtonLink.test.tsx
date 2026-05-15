@@ -13,8 +13,8 @@ describe('ButtonLink', () => {
     const link = screen.getByRole('link', { name: /view issues/i })
 
     expect(link).toHaveAttribute('href', '#issues-panel')
-    expect(link).toHaveClass('border-slate-300')
-    expect(link).toHaveClass('text-sky-700')
+    expect(link).toHaveClass('border-indigo-200')
+    expect(link).toHaveClass('text-indigo-700')
     expect(link).toHaveClass('text-center')
   })
 

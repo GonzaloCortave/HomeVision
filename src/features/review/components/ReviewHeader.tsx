@@ -11,12 +11,12 @@ const ReviewHeader = ({ review }: ReviewHeaderProps) => {
   const formattedUploadedAt = formatUploadedAt(review.uploaded_at)
 
   return (
-    <header className="flex flex-col gap-5 border-b border-slate-200 pb-5">
+    <header className="flex flex-col gap-5 border-b border-indigo-100 pb-5">
       <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase text-sky-700">
+        <p className="text-sm font-semibold uppercase text-indigo-600">
           HomeVision review
         </p>
-        <h1 className="mt-2 text-2xl font-semibold text-slate-950">
+        <h1 className="mt-2 text-2xl font-semibold text-zinc-950">
           {review.name}
         </h1>
       </div>
