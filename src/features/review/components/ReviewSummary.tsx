@@ -136,7 +136,7 @@ const getSummaryContent = (
         eyebrow: 'Not submittable',
         Icon: CircleDashed,
         iconClassName: 'border-slate-200 text-slate-600',
-        title: 'Not ready for submission',
+        title: 'Submission unavailable',
       }
     case 'ready':
       return {

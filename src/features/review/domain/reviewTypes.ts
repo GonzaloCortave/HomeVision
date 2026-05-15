@@ -219,7 +219,9 @@ function normalizeIssueSeverity(severity: unknown): IssueSeverity {
 }
 
 function normalizeVersion(version: unknown): number {
-  return typeof version === 'number' && Number.isFinite(version) ? version : 0
+  return typeof version === 'number' && Number.isInteger(version) && version > 0
+    ? version
+    : 1
 }
 
 function normalizePositiveNumber(value: unknown): number | null {

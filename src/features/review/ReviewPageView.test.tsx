@@ -109,10 +109,9 @@ describe('ReviewPageView', () => {
     expect(
       screen.getByRole('heading', { level: 2, name: /document/i }),
     ).toBeInTheDocument()
-    expect(screen.getByTitle('123-maple-appraisal-review.pdf')).toHaveAttribute(
-      'src',
-      '/local-sample-uploaded-document.pdf',
-    )
+    expect(
+      screen.getByTitle('PDF preview for 123-maple-appraisal-review.pdf'),
+    ).toHaveAttribute('src', '/local-sample-uploaded-document.pdf')
     expect(
       screen.getByRole('link', { name: /open searchable pdf in new tab/i }),
     ).toHaveAttribute('href', '/local-sample-uploaded-document.pdf')
@@ -124,7 +123,7 @@ describe('ReviewPageView', () => {
     })
     const issuesPanel = container.querySelector('#issues-panel') as HTMLElement
 
-    expect(documentPanel.compareDocumentPosition(reviewRail)).toBe(
+    expect(reviewRail.compareDocumentPosition(documentPanel)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     )
     expect(reviewRail.compareDocumentPosition(issuesPanel)).toBe(
@@ -312,12 +311,12 @@ describe('ReviewPageView', () => {
       screen.getByRole('heading', { name: /fix blockers before submitting/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(
-        /critical and major issues must be resolved before this review can be submitted/i,
+      screen.getAllByText(
+        /fix critical and major issues in the source document/i,
       ),
-    ).toBeInTheDocument()
+    ).toHaveLength(2)
     expect(
-      screen.getByText(/resolve blockers in the source document/i),
+      screen.getByText(/submit unlocks when no blockers remain/i),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /submit review/i }),
@@ -378,11 +377,8 @@ describe('ReviewPageView', () => {
 
     expect(screen.getByText('created')).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: /not ready for submission/i }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: /submission unavailable/i }),
-    ).toBeInTheDocument()
+      screen.getAllByRole('heading', { name: /submission unavailable/i }),
+    ).toHaveLength(2)
     expect(
       screen.getAllByText(
         /submit is available only while a review is on review/i,

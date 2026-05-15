@@ -47,9 +47,10 @@ const ReviewIssuesSection = ({
       aria-labelledby="issues-heading"
       className="scroll-mt-6 space-y-4"
       id={REVIEW_SECTION_IDS.issues}
+      tabIndex={-1}
     >
       <div>
-        <p className="text-sm font-semibold uppercase text-slate-500">
+        <p className="text-sm font-semibold uppercase text-slate-600">
           Review details
         </p>
         <h2
@@ -112,6 +113,9 @@ const IssueSeverityGroup = ({
           {heading}
         </h3>
         <span
+          aria-label={`${issues.length} ${heading.toLowerCase()} ${
+            issues.length === 1 ? 'issue' : 'issues'
+          }`}
           className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${presentation.badgeClassName}`}
         >
           {issues.length}

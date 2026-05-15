@@ -30,8 +30,6 @@ type ReviewSubmissionPanelContent = {
   statusLabelClassName: string
   submitLabel: string
   title: string
-  uploadAccessibleLabel: string
-  uploadLabel: string
 }
 
 const SUBMISSION_HEADING_ID = 'review-submission-heading'
@@ -49,6 +47,8 @@ const ReviewSubmissionPanel = ({
     hasSubmittedReview,
     uploadVersion,
   )
+  const uploadAccessibleLabel = `Upload Version ${uploadVersion}`
+  const uploadLabel = `Upload V${uploadVersion}`
 
   return (
     <section
@@ -116,7 +116,7 @@ const ReviewSubmissionPanel = ({
           {content.submitLabel}
         </Button>
         <Link
-          aria-label={content.uploadAccessibleLabel}
+          aria-label={uploadAccessibleLabel}
           aria-describedby={SUBMISSION_HELPER_ID}
           className={getButtonClassName({
             className: 'w-full',
@@ -126,7 +126,7 @@ const ReviewSubmissionPanel = ({
           to={uploadPageUrl}
         >
           <Upload aria-hidden="true" className="size-4" strokeWidth={2} />
-          {content.uploadLabel}
+          {uploadLabel}
         </Link>
       </div>
     </section>
@@ -150,8 +150,6 @@ const getReviewSubmissionPanelContent = (
       statusLabelClassName: 'border-slate-200 bg-slate-50 text-slate-700',
       submitLabel: 'Submitted',
       title: 'Review submitted',
-      uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
-      uploadLabel: `Upload V${uploadVersion}`,
     }
   }
 
@@ -167,8 +165,6 @@ const getReviewSubmissionPanelContent = (
         statusLabelClassName: 'border-red-200 bg-red-50 text-red-700',
         submitLabel: 'Submit review',
         title: 'Fix blockers before submitting',
-        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
-        uploadLabel: `Upload V${uploadVersion}`,
       }
     case 'missing_document':
       return {
@@ -181,8 +177,6 @@ const getReviewSubmissionPanelContent = (
         statusLabelClassName: 'border-red-200 bg-red-50 text-red-700',
         submitLabel: 'Submit review',
         title: 'Document required',
-        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
-        uploadLabel: `Upload V${uploadVersion}`,
       }
     case 'not_reviewable':
       return {
@@ -197,8 +191,6 @@ const getReviewSubmissionPanelContent = (
         statusLabelClassName: 'border-slate-200 bg-slate-50 text-slate-700',
         submitLabel: 'Submit review',
         title: 'Submission unavailable',
-        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
-        uploadLabel: `Upload V${uploadVersion}`,
       }
     case 'ready':
       return {
@@ -213,8 +205,6 @@ const getReviewSubmissionPanelContent = (
         statusLabelClassName: 'border-slate-200 bg-slate-50 text-slate-700',
         submitLabel: 'Submit review',
         title: 'Ready to submit',
-        uploadAccessibleLabel: `Upload Version ${uploadVersion}`,
-        uploadLabel: `Upload V${uploadVersion}`,
       }
   }
 }
